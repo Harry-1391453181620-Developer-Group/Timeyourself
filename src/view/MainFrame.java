@@ -4,6 +4,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
+import controller.Convertor;
+import controller.Convertor.*;
+
 public class MainFrame {
     public MainFrame() {
         ImageIcon icon = new ImageIcon("./Timeyourselflogo.png");
@@ -33,7 +36,7 @@ public class MainFrame {
         JPanel panel1 = new JPanel();
         panel1.setLayout(new BoxLayout(panel1, BoxLayout.Y_AXIS));
         panel1.setBackground(JTabbedPaneBackgroundColor);
-        panel1.add(Box.createVerticalStrut(25));
+        panel1.add(Box.createVerticalStrut(15));
 
         JLabel title = new JLabel("Tasks", SwingConstants.CENTER);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -41,27 +44,8 @@ public class MainFrame {
         panel1.add(title);
         panel1.add(Box.createVerticalStrut(15));
 
-        JTextArea textArea1 = new JTextArea();
-        textArea1.setBackground(singleEntryBackgroundColor);
-        textArea1.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        textArea1.setLineWrap(true);
-        textArea1.setWrapStyleWord(true);
-        textArea1.setMaximumSize(singleEntrySize);
-        textArea1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel1.add(textArea1);
-        panel1.add(Box.createVerticalStrut(15));
-
-        JTextArea textArea2 = new JTextArea();
-        textArea2.setBackground(singleEntryBackgroundColor);
-        textArea2.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        textArea2.setLineWrap(true);
-        textArea2.setWrapStyleWord(true);
-        textArea2.setMaximumSize(singleEntrySize);
-        textArea2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panel1.add(textArea2);
-        panel1.add(Box.createVerticalStrut(15));
-
-        // TODO: Make those textAreas an interface and can be implemented by Task, Event, EmergencyTask, remember to consider how to add a blank space between every entry.
+        Convertor.TaskConvertToJTextArea(panel1, new models.Task("Task 1"), singleEntryBackgroundColor, singleEntrySize);
+        Convertor.TaskConvertToJTextArea(panel1, new models.Task("Task 2"), singleEntryBackgroundColor, singleEntrySize);
 
         // Panel 2, for emergency tasks
         JPanel panel2 = new JPanel();
@@ -70,8 +54,10 @@ public class MainFrame {
         panel2.add(Box.createVerticalStrut(15));
 
         JLabel title2 = new JLabel("Emergency Tasks", SwingConstants.CENTER);
+        title2.setAlignmentX(Component.CENTER_ALIGNMENT);
         title2.setVisible(true);
         panel2.add(title2);
+        panel2.add(Box.createVerticalStrut(15));
 
         // Panel 3, for events
         JPanel panel3 = new JPanel();
@@ -80,8 +66,10 @@ public class MainFrame {
         panel3.add(Box.createVerticalStrut(15));
 
         JLabel title3 = new JLabel("Events", SwingConstants.CENTER);
+        title3.setAlignmentX(Component.CENTER_ALIGNMENT);
         title3.setVisible(true);
         panel3.add(title3);
+        panel3.add(Box.createVerticalStrut(15));
 
         tabbedPane.addTab("Task", panel1);
         tabbedPane.addTab("Emergency Task", panel2);

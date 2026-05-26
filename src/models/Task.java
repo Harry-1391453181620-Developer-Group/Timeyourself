@@ -290,12 +290,6 @@ public class Task {
      */
     @Override
     public String toString() {
-        return "Task: " +
-                "taskName='" + taskName + '\'' +
-                ", taskDescription='" + taskDescription + '\'' +
-                ", isCompleted=" + isCompleted +
-                ", dueDate=" + dueDate +
-                ", startDate=" + startDate +
-                ", index=" + index;
+        return "Emergency Task: " + this.taskName + " - " + this.taskDescription + " - Due Date: " + this.dueDate + " - Start Date: " + this.startDate;
     }
 }

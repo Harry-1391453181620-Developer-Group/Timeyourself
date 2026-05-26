@@ -129,7 +129,7 @@ public class Event {
      * @return a string containing event details
      */
     public String toString() {
-        return "Event{name='" + name + "', date='" + date + "', location='" + location + "'}";
+        return "Event: " + this.name + " - " + this.description + " - Date: " + this.date + " - Location " + this.location;
     }
 
     /**
