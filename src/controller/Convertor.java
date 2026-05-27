@@ -7,46 +7,59 @@ import models.Event;
 import models.Task;
 import models.Task.*;
 import models.Event.*;
+import view.GUIConfig;
 
 import java.awt.*;
 
 public class Convertor implements ConvertorInterface {
-    public static void EmergencyTaskConvertToJTextArea(JPanel jp, EmergencyTask emergencyTask, Color color, Dimension size) {
+    public static void EmergencyTaskConvertToJTextArea(JPanel jp, EmergencyTask emergencyTask, Color color) {
         JTextArea textArea = new JTextArea();
         textArea.setBackground(color);
-        textArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        textArea.setBorder(GUIConfig.globalBorder);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setText(emergencyTask.toString());
-        textArea.setMaximumSize(size);
+        textArea.setFont(GUIConfig.labelFont);
+        Dimension dynamicSize = GUIConfig.getSingleEntrySize(textArea);
+        textArea.setMaximumSize(dynamicSize);
         textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
         jp.add(textArea);
         jp.add(Box.createVerticalStrut(15));
+        jp.revalidate();
+        jp.repaint();
     }
 
-    public static void TaskConvertToJTextArea(JPanel jp, Task task, Color color, Dimension size) {
+    public static void TaskConvertToJTextArea(JPanel jp, Task task, Color color) {
         JTextArea textArea = new JTextArea();
         textArea.setBackground(color);
-        textArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        textArea.setBorder(GUIConfig.globalBorder);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setText(task.toString());
-        textArea.setMaximumSize(size);
+        textArea.setFont(GUIConfig.labelFont);
+        Dimension dynamicSize = GUIConfig.getSingleEntrySize(textArea);
+        textArea.setMaximumSize(dynamicSize);
         textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
         jp.add(textArea);
         jp.add(Box.createVerticalStrut(15));
+        jp.revalidate();
+        jp.repaint();
     }
 
-    public static void EventConvertToJTextArea(JPanel jp, Event event, Color color, Dimension size) {
+    public static void EventConvertToJTextArea(JPanel jp, Event event, Color color) {
         JTextArea textArea = new JTextArea();
         textArea.setBackground(color);
-        textArea.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        textArea.setBorder(GUIConfig.globalBorder);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setText(event.toString());
-        textArea.setMaximumSize(size);
+        textArea.setFont(GUIConfig.labelFont);
+        Dimension dynamicSize = GUIConfig.getSingleEntrySize(textArea);
+        textArea.setMaximumSize(dynamicSize);
         textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
         jp.add(textArea);
         jp.add(Box.createVerticalStrut(15));
+        jp.revalidate();
+        jp.repaint();
     }
 }

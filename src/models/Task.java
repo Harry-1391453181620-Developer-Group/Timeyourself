@@ -147,7 +147,7 @@ public class Task {
      */
     public void setTaskDescription(String taskDescription) {
         if (taskDescription != null) {
-            this.taskDescription = taskDescription + "No due date set.";
+            this.taskDescription = taskDescription;
         } else {
             this.taskDescription = "No Description";
         }
@@ -290,6 +290,6 @@ public class Task {
      */
     @Override
     public String toString() {
-        return "Emergency Task: " + this.taskName + " - " + this.taskDescription + " - Due Date: " + this.dueDate + " - Start Date: " + this.startDate;
+        return "Task: " + this.taskName + " - " + this.taskDescription + " - Due Date: " + this.dueDate + " - Start Date: " + this.startDate;
     }
 }
