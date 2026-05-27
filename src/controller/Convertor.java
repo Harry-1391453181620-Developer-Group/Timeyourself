@@ -13,6 +13,11 @@ import java.awt.*;
 
 public class Convertor implements ConvertorInterface {
     public static void EmergencyTaskConvertToJTextArea(JPanel jp, EmergencyTask emergencyTask, Color color) {
+        JPanel wrapperPanel = new JPanel(new BorderLayout(5, 0));
+        wrapperPanel.setOpaque(false);
+        wrapperPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+
         JTextArea textArea = new JTextArea();
         textArea.setBackground(color);
         textArea.setBorder(GUIConfig.globalBorder);
@@ -23,13 +28,36 @@ public class Convertor implements ConvertorInterface {
         Dimension dynamicSize = GUIConfig.getSingleEntrySize(textArea);
         textArea.setMaximumSize(dynamicSize);
         textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
-        jp.add(textArea);
+
+        JCheckBox deleteCheckBox = new JCheckBox("Delete");
+        deleteCheckBox.setBackground(GUIConfig.globalCheckBoxColor);
+        deleteCheckBox.setFont(GUIConfig.globalCheckBoxFont);
+        deleteCheckBox.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(jp, "Sure to delete this emergency task?", "Confirm", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION) {
+                jp.remove(wrapperPanel);
+                jp.revalidate();
+                jp.repaint();
+            } else {
+                deleteCheckBox.setSelected(false);
+            }
+        });
+
+        wrapperPanel.add(textArea, BorderLayout.CENTER);
+        wrapperPanel.add(deleteCheckBox, BorderLayout.EAST);
+
+        jp.add(wrapperPanel);
         jp.add(Box.createVerticalStrut(15));
         jp.revalidate();
         jp.repaint();
     }
 
     public static void TaskConvertToJTextArea(JPanel jp, Task task, Color color) {
+        JPanel wrapperPanel = new JPanel(new BorderLayout(5, 0));
+        wrapperPanel.setOpaque(false);
+        wrapperPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+
         JTextArea textArea = new JTextArea();
         textArea.setBackground(color);
         textArea.setBorder(GUIConfig.globalBorder);
@@ -40,13 +68,36 @@ public class Convertor implements ConvertorInterface {
         Dimension dynamicSize = GUIConfig.getSingleEntrySize(textArea);
         textArea.setMaximumSize(dynamicSize);
         textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
-        jp.add(textArea);
+
+        JCheckBox deleteCheckBox = new JCheckBox("Delete");
+        deleteCheckBox.setBackground(GUIConfig.globalCheckBoxColor);
+        deleteCheckBox.setFont(GUIConfig.globalCheckBoxFont);
+        deleteCheckBox.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(jp, "Sure to delete this task?", "Confirm", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION) {
+                jp.remove(wrapperPanel);
+                jp.revalidate();
+                jp.repaint();
+            } else {
+                deleteCheckBox.setSelected(false);
+            }
+        });
+
+        wrapperPanel.add(textArea, BorderLayout.CENTER);
+        wrapperPanel.add(deleteCheckBox, BorderLayout.EAST);
+
+        jp.add(wrapperPanel);
         jp.add(Box.createVerticalStrut(15));
         jp.revalidate();
         jp.repaint();
     }
 
     public static void EventConvertToJTextArea(JPanel jp, Event event, Color color) {
+        JPanel wrapperPanel = new JPanel(new BorderLayout(5, 0));
+        wrapperPanel.setOpaque(false);
+        wrapperPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+
         JTextArea textArea = new JTextArea();
         textArea.setBackground(color);
         textArea.setBorder(GUIConfig.globalBorder);
@@ -57,7 +108,25 @@ public class Convertor implements ConvertorInterface {
         Dimension dynamicSize = GUIConfig.getSingleEntrySize(textArea);
         textArea.setMaximumSize(dynamicSize);
         textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
-        jp.add(textArea);
+
+        JCheckBox deleteCheckBox = new JCheckBox("Delete");
+        deleteCheckBox.setBackground(GUIConfig.globalCheckBoxColor);
+        deleteCheckBox.setFont(GUIConfig.globalCheckBoxFont);
+        deleteCheckBox.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(jp, "Sure to delete this emergency task?", "Confirm", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION) {
+                jp.remove(wrapperPanel);
+                jp.revalidate();
+                jp.repaint();
+            } else {
+                deleteCheckBox.setSelected(false);
+            }
+        });
+
+        wrapperPanel.add(textArea, BorderLayout.CENTER);
+        wrapperPanel.add(deleteCheckBox, BorderLayout.EAST);
+
+        jp.add(wrapperPanel);
         jp.add(Box.createVerticalStrut(15));
         jp.revalidate();
         jp.repaint();

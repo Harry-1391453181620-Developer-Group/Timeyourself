@@ -18,7 +18,9 @@ public class GUIConfig {
     public static final Color JTabbedPaneBackgroundColor = new Color(72, 202, 228);
     public static final Color singleEntryBackgroundColor = new Color(0, 180, 216);
     public static final Color buttonBackgroundColor = new Color(0, 150, 199);
+    public static final Color globalCheckBoxColor = new Color(0, 119, 182);
     public static final Dimension modifyEntryButtonSize = new Dimension(500, 50);
     public static final Border globalBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
     public static final Font labelFont = new Font("SansSerif", Font.BOLD, 24);
+    public static final Font globalCheckBoxFont = new Font("SansSerif", Font.BOLD, 18);
 }
