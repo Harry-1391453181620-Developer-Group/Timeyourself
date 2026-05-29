@@ -7,19 +7,30 @@ import models.Event;
 import models.Task;
 import models.Task.*;
 import models.Event.*;
+import org.jetbrains.annotations.NotNull;
 import view.GUIConfig;
 
 import java.awt.*;
 
+/**
+ * Responsible to convert abstract objects to UI components
+ */
 public class Convertor implements ConvertorInterface {
-    public static void EmergencyTaskConvertToJTextArea(JPanel jp, EmergencyTask emergencyTask, Color color) {
+    /**
+     * Converts the EmergencyTask objects to EmergencyTask entry component
+     *
+     * @param jp                         the panel that the entry component is going to add to
+     * @param emergencyTask              the emergencyTask object that is going to be converted
+     * @param singleEntryBackgroundColor the background color of the entry
+     */
+    public static void EmergencyTaskConvertToJTextArea(@NotNull JPanel jp, @NotNull EmergencyTask emergencyTask, Color singleEntryBackgroundColor){
         JPanel wrapperPanel = new JPanel(new BorderLayout(5, 0));
         wrapperPanel.setOpaque(false);
         wrapperPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 
 
         JTextArea textArea = new JTextArea();
-        textArea.setBackground(color);
+        textArea.setBackground(singleEntryBackgroundColor);
         textArea.setBorder(GUIConfig.globalBorder);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
@@ -52,14 +63,21 @@ public class Convertor implements ConvertorInterface {
         jp.repaint();
     }
 
-    public static void TaskConvertToJTextArea(JPanel jp, Task task, Color color) {
+    /**
+     * Converts the Task objects to Task entry component
+     *
+     * @param jp                         the panel that the entry component is going to add to
+     * @param task                       the emergencyTask object that is going to be converted
+     * @param singleEntryBackgroundColor the background color of the entry
+     * */
+    public static void TaskConvertToJTextArea(@NotNull JPanel jp, @NotNull Task task, Color singleEntryBackgroundColor) {
         JPanel wrapperPanel = new JPanel(new BorderLayout(5, 0));
         wrapperPanel.setOpaque(false);
         wrapperPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 
 
         JTextArea textArea = new JTextArea();
-        textArea.setBackground(color);
+        textArea.setBackground(singleEntryBackgroundColor);
         textArea.setBorder(GUIConfig.globalBorder);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
@@ -92,14 +110,20 @@ public class Convertor implements ConvertorInterface {
         jp.repaint();
     }
 
-    public static void EventConvertToJTextArea(JPanel jp, Event event, Color color) {
+    /**Converts the Event objects to Event entry component
+     *
+     * @param jp                         the panel that the entry component is going to add to
+     * @param event                      the emergencyTask object that is going to be converted
+     * @param singleEntryBackgroundColor the background color of the entry
+     */
+    public static void EventConvertToJTextArea(@NotNull JPanel jp, @NotNull Event event, Color singleEntryBackgroundColor) {
         JPanel wrapperPanel = new JPanel(new BorderLayout(5, 0));
         wrapperPanel.setOpaque(false);
         wrapperPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 
 
         JTextArea textArea = new JTextArea();
-        textArea.setBackground(color);
+        textArea.setBackground(singleEntryBackgroundColor);
         textArea.setBorder(GUIConfig.globalBorder);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);

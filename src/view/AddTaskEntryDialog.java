@@ -7,11 +7,15 @@ import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * The dialog where users can add Event
+ */
 public class AddTaskEntryDialog {
     public interface TaskCallback {
         void onTaskCreated(Task task);
     }
 
+    // Initialize the dialog
     public AddTaskEntryDialog(Window parentWindow, ImageIcon icon, Color mainBackgroundColor, Color JTableBackgroundColor, Color buttonBackgroundColor, TaskCallback callback) {
         JDialog dialog = new JDialog(parentWindow, "Timeyourself - Add new task");
         dialog.setSize(600, 800);
@@ -24,10 +28,12 @@ public class AddTaskEntryDialog {
         contentPane.setBackground(mainBackgroundColor);
         contentPane.setLayout(new BorderLayout());
 
+        // Icon label
         JLabel label = new JLabel(icon, SwingConstants.CENTER);
         label.setVisible(true);
         contentPane.add(label, BorderLayout.NORTH);
 
+        // Detail entering panel
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(mainBackgroundColor);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -49,6 +55,7 @@ public class AddTaskEntryDialog {
 
         contentPane.add(formPanel, BorderLayout.CENTER);
 
+        // Add confirmation button
         JButton confirmButton = new JButton("Confirm adding");
         confirmButton.setBackground(buttonBackgroundColor);
         confirmButton.setFont(GUIConfig.labelFont);

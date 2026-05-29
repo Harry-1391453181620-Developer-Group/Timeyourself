@@ -9,31 +9,37 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
+/** The main JFrame that the user first see. */
 public class MainFrame {
     public MainFrame() {
-        ImageIcon icon = GUIConfig.icon;
-        Color mainBackgroundColor = GUIConfig.mainBackgroundColor;
-        Color JTabbedPaneBackgroundColor = GUIConfig.JTabbedPaneBackgroundColor;
-        Color singleEntryBackgroundColor = GUIConfig.singleEntryBackgroundColor;
-        Color buttonBackgroundColor = GUIConfig.buttonBackgroundColor;
-        Dimension modifyEntryButtonSize = GUIConfig.modifyEntryButtonSize;
-        Border globalBorder = GUIConfig.globalBorder;
-        Font labelFont = GUIConfig.labelFont;
+        // Give the values of GUIConfig items to local variables.
+        final ImageIcon icon = GUIConfig.icon;
+        final Color mainBackgroundColor = GUIConfig.mainBackgroundColor;
+        final Color JTabbedPaneBackgroundColor = GUIConfig.JTabbedPaneBackgroundColor;
+        final Color singleEntryBackgroundColor = GUIConfig.singleEntryBackgroundColor;
+        final Color buttonBackgroundColor = GUIConfig.buttonBackgroundColor;
+        final Dimension modifyEntryButtonSize = GUIConfig.modifyEntryButtonSize;
+        final Border globalBorder = GUIConfig.globalBorder;
+        final Font labelFont = GUIConfig.labelFont;
 
+        // Initialize MainFrame.
         JFrame frame = new JFrame("Timeyourself");
         frame.setSize(2000, 1500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setBackground(mainBackgroundColor);
         frame.setLocationRelativeTo(null);
 
+        // The container of MainFrame.
         Container contentPane = frame.getContentPane();
         contentPane.setBackground(mainBackgroundColor);
         contentPane.setLayout(new BorderLayout());
 
+        // The icon label
         JLabel label = new JLabel(icon, SwingConstants.CENTER);
         label.setVisible(true);
         contentPane.add(label, BorderLayout.NORTH);
 
+        // The main tabbed pane
         JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
         tabbedPane.setBackground(JTabbedPaneBackgroundColor);
 
@@ -43,6 +49,7 @@ public class MainFrame {
         panel1.setBackground(JTabbedPaneBackgroundColor);
         panel1.add(Box.createVerticalStrut(15));
 
+        // The label for Task pane
         JLabel title1 = new JLabel("Tasks", SwingConstants.CENTER);
         title1.setFont(labelFont);
         title1.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -50,6 +57,7 @@ public class MainFrame {
         panel1.add(title1);
         panel1.add(Box.createVerticalStrut(15));
 
+        // Add task button
         JButton button1 = new JButton("Add Task");
         button1.setMaximumSize(modifyEntryButtonSize);
         button1.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -73,6 +81,7 @@ public class MainFrame {
         panel2.setBackground(JTabbedPaneBackgroundColor);
         panel2.add(Box.createVerticalStrut(15));
 
+        // Label for Emergency task pane
         JLabel title2 = new JLabel("Emergency tasks", SwingConstants.CENTER);
         title2.setFont(labelFont);
         title2.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -80,6 +89,7 @@ public class MainFrame {
         panel2.add(title2);
         panel2.add(Box.createVerticalStrut(15));
 
+        // Add EmergencyTask button
         JButton button2 = new JButton("Add Emergency task");
         button2.setMaximumSize(modifyEntryButtonSize);
         button2.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -103,6 +113,7 @@ public class MainFrame {
         panel3.setBackground(JTabbedPaneBackgroundColor);
         panel3.add(Box.createVerticalStrut(15));
 
+        // Label for Event pane
         JLabel title3 = new JLabel("Event", SwingConstants.CENTER);
         title3.setFont(labelFont);
         title3.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -110,6 +121,7 @@ public class MainFrame {
         panel3.add(title3);
         panel3.add(Box.createVerticalStrut(15));
 
+        // Add Event button
         JButton button3 = new JButton("Add Event");
         button3.setMaximumSize(modifyEntryButtonSize);
         button3.setAlignmentX(Component.CENTER_ALIGNMENT);
