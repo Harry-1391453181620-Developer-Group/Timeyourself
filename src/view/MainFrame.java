@@ -1,5 +1,6 @@
 package view;
 
+import com.formdev.flatlaf.ui.FlatButtonUI;
 import controller.Convertor;
 import models.EmergencyTask;
 import models.Task;
@@ -63,7 +64,6 @@ public class MainFrame {
         button1.setAlignmentX(Component.CENTER_ALIGNMENT);
         button1.setBackground(buttonBackgroundColor);
         button1.setFont(new Font("Timeyourselflogo", Font.ITALIC, 24));
-        button1.setBorder(globalBorder);
         button1.addActionListener(e -> {
             new AddTaskEntryDialog(frame, icon, mainBackgroundColor, JTabbedPaneBackgroundColor, buttonBackgroundColor, new AddTaskEntryDialog.TaskCallback() {
                 @Override
@@ -95,7 +95,6 @@ public class MainFrame {
         button2.setAlignmentX(Component.CENTER_ALIGNMENT);
         button2.setBackground(buttonBackgroundColor);
         button2.setFont(new Font("Timeyourselflogo", Font.ITALIC, 24));
-        button2.setBorder(globalBorder);
         button2.addActionListener(e -> {
             new AddEmergencyTaskEntryDialog(frame, icon, mainBackgroundColor, JTabbedPaneBackgroundColor, buttonBackgroundColor, new AddEmergencyTaskEntryDialog.EmergencyTaskCallback() {
                 @Override
@@ -127,7 +126,6 @@ public class MainFrame {
         button3.setAlignmentX(Component.CENTER_ALIGNMENT);
         button3.setBackground(buttonBackgroundColor);
         button3.setFont(new Font("Timeyourselflogo", Font.ITALIC, 24));
-        button3.setBorder(globalBorder);
         button3.addActionListener(e -> {
             new AddEventEntryDialog(frame, icon, mainBackgroundColor, JTabbedPaneBackgroundColor, buttonBackgroundColor, new AddEventEntryDialog.EventCallback()  {
                 @Override
