@@ -1,6 +1,8 @@
 package view;
 
 import models.Task;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -67,20 +69,14 @@ public class AddTaskEntryDialog {
                 String startStr = startField.getText().trim();
                 String dueStr = dueField.getText().trim();
 
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                LocalDateTime dueDate = LocalDateTime.parse(dueStr, formatter);
-                LocalDateTime startDate = LocalDateTime.parse(startStr, formatter);
-
-                Task newTask = new Task(name, desc, dueDate, startDate);
-
                 if (callback != null) {
-                    callback.onTaskCreated(newTask);
+                    callback.onTaskCreated(createObject(name, desc, startStr, dueStr));
                 }
 
                 dialog.dispose();
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Date format error! Please check! \nExample: 27/05/2026 18:00", "ERROR", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Error, please try enter more information.", "ERROR", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -89,5 +85,37 @@ public class AddTaskEntryDialog {
         dialog.setLocationRelativeTo(null);
 
         dialog.setVisible(true);
+    }
+
+    /**
+     * Creates an EmergencyTask object based on the provided parameters, using all the provided constructors in EmergencyTask class.
+     *
+     * @param name     the name of the emergency task
+     * @param desc     the description of the emergency task
+     * @param startStr the start date string of the emergency task
+     * @param dueStr   the due date string of the emergency task
+     * @return the created EmergencyTask object
+     */
+    @Contract("_, _, _, _ -> new")
+    public static @NotNull Task createObject(@NotNull String name, String desc, String startStr, String dueStr) {
+        if (name.isEmpty() && desc.isEmpty() && startStr.isEmpty() && dueStr.isEmpty()) {
+            return new Task();
+        } else if (desc.isEmpty() && startStr.isEmpty() && dueStr.isEmpty()) {
+            return new Task(name);
+        } else if (desc.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime dueDate = LocalDateTime.parse(dueStr, formatter);
+            LocalDateTime startDate = LocalDateTime.parse(startStr, formatter);
+            return new Task(name, dueDate, startDate);
+        } else if (dueStr.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime startDate = LocalDateTime.parse(startStr, formatter);
+            return new Task(name, desc, startDate);
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime startDate = LocalDateTime.parse(startStr, formatter);
+            LocalDateTime dueDate = LocalDateTime.parse(dueStr, formatter);
+            return new Task(name, desc, dueDate, startDate);
+        }
     }
 }

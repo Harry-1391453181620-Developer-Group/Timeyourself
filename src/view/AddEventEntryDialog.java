@@ -1,7 +1,8 @@
 package view;
 
 import models.Event;
-import models.Task;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -68,19 +69,14 @@ public class AddEventEntryDialog {
                 String dateStr = dateField.getText().trim();
                 String locationStr = locationField.getText().trim();
 
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
-
-                Event newEvent = new Event(name, date, desc, locationStr);
-
                 if (callback != null) {
-                    callback.onEventCreated(newEvent);
+                    callback.onEventCreated(createObject(name, desc, dateStr, locationStr));
                 }
 
                 dialog.dispose();
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Date format error! Please check! \nExample: 27/05/2026 18:00", "ERROR", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Error, please try enter more information.", "ERROR", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -89,5 +85,35 @@ public class AddEventEntryDialog {
         dialog.setLocationRelativeTo(null);
 
         dialog.setVisible(true);
+    }
+
+    /**
+     * Creates an EmergencyTask object based on the provided parameters, using all the provided constructors in EmergencyTask class.
+     *
+     * @param name        the name of the emergency task
+     * @param desc        the description of the emergency task
+     * @param dateStr     the date string of the emergency task
+     * @param locationStr the location string of the emergency task
+     * @return the created EmergencyTask object
+     */
+    @Contract("_, _, _, _ -> new")
+    public static @NotNull Event createObject(@NotNull String name, String desc, String dateStr, @NotNull String locationStr) {
+        if (locationStr.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
+            return new Event(name, desc, date);
+        } else if (desc.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
+            return new Event(name, date, locationStr);
+        } else if (desc.isEmpty() && locationStr.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
+            return new Event(name, date);
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
+            return new Event(name, date, locationStr, desc);
+        }
     }
 }

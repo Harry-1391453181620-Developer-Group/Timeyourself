@@ -30,3 +30,6 @@ bin/
 
 ### Idea ###
 .idea/
+
+### Maven ###
+target/

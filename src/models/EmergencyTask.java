@@ -48,11 +48,29 @@ public class EmergencyTask extends Task {
     }
 
     /**
+     * Constructs an emergency task with the specified name.
+     *
+     * @param taskName        the name of the emergency task
+     * @param taskDescription the description of the emergency task
+     */
+    public EmergencyTask(String taskName, String taskDescription) {
+        super();
+        this.setTaskName(taskName);
+        this.setTaskDescription(taskDescription);
+        this.isCompleted = false;
+        this.setDueDate(null);
+        this.setStartDate(null);
+        this.index = taskCount;
+        isEmergencyTask = true;
+        taskCount++;
+    }
+
+    /**
      * Constructs an emergency task with the specified name, due date, and start date.
      *
      * @param taskName  the name of the emergency task
-     * @param dueDate   the due date of the task
-     * @param startDate the start date of the task
+     * @param dueDate   the due date of the emergency task
+     * @param startDate the start date of the emergency task
      */
     public EmergencyTask(String taskName, LocalDateTime dueDate, LocalDateTime startDate) {
         super();
@@ -70,9 +88,9 @@ public class EmergencyTask extends Task {
      * Constructs an emergency task with the specified name, description, due date, and start date.
      *
      * @param taskName        the name of the emergency task
-     * @param taskDescription the description of the task
-     * @param dueDate         the due date of the task
-     * @param startDate       the start date of the task
+     * @param taskDescription the description of the emergency task
+     * @param dueDate         the due date of the emergency task
+     * @param startDate       the start date of the emergency task
      */
     public EmergencyTask(String taskName, String taskDescription, LocalDateTime dueDate, LocalDateTime startDate) {
         super();
@@ -91,8 +109,8 @@ public class EmergencyTask extends Task {
      * The due date is set to null.
      *
      * @param taskName        the name of the emergency task
-     * @param taskDescription the description of the task
-     * @param startDate       the start date of the task
+     * @param taskDescription the description of the emergency task
+     * @param startDate       the start date of the emergency task
      */
     public EmergencyTask(String taskName, String taskDescription, LocalDateTime startDate) {
         super();
@@ -107,7 +125,7 @@ public class EmergencyTask extends Task {
     }
 
     /**
-     * Converts this emergency task to a regular task.
+     * Converts this emergency task to a regular emergency task.
      * Note: In Java, explicit deletion of an object's storage space is not possible.
      * The object will be garbage collected when no longer referenced.
      * This method returns the new Task so the caller can replace the reference.
