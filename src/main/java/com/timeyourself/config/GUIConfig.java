@@ -1,4 +1,4 @@
-package view;
+package com.timeyourself.config;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;

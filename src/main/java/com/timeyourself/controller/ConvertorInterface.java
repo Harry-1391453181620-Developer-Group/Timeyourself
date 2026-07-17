@@ -1,8 +1,8 @@
-package controller;
+package com.timeyourself.controller;
 
-import models.EmergencyTask;
-import models.Task;
-import models.Event;
+import com.timeyourself.model.EmergencyTask;
+import com.timeyourself.model.Task;
+import com.timeyourself.model.Event;
 
 import javax.swing.*;
 import java.awt.*;

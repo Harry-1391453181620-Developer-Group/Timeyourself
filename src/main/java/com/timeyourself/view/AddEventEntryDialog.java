@@ -1,13 +1,11 @@
-package view;
+package com.timeyourself.view;
 
-import models.Event;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import com.timeyourself.config.GUIConfig;
+import com.timeyourself.model.Event;
+import com.timeyourself.service.EventService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * The dialog where users can add Event
@@ -17,7 +15,11 @@ public class AddEventEntryDialog {
         void onEventCreated(Event event);
     }
 
-    public AddEventEntryDialog(Window parentWindow, ImageIcon icon, Color mainBackgroundColor, Color JTableBackgroundColor, Color buttonBackgroundColor, AddEventEntryDialog.EventCallback callback) {
+    private final EventService eventService;
+
+
+    public AddEventEntryDialog(Window parentWindow, ImageIcon icon, Color mainBackgroundColor, Color JTableBackgroundColor, Color buttonBackgroundColor, AddEventEntryDialog.EventCallback callback, EventService eventService) {
+        this.eventService = eventService;
         // Initialize the dialog
         JDialog dialog = new JDialog(parentWindow, "Timeyourself - Add new event");
         dialog.setSize(600, 800);
@@ -70,7 +72,7 @@ public class AddEventEntryDialog {
                 String locationStr = locationField.getText().trim();
 
                 if (callback != null) {
-                    callback.onEventCreated(createObject(name, desc, dateStr, locationStr));
+                    callback.onEventCreated(eventService.create(name, desc, dateStr, locationStr));
                 }
 
                 dialog.dispose();
@@ -85,35 +87,5 @@ public class AddEventEntryDialog {
         dialog.setLocationRelativeTo(null);
 
         dialog.setVisible(true);
-    }
-
-    /**
-     * Creates an EmergencyTask object based on the provided parameters, using all the provided constructors in EmergencyTask class.
-     *
-     * @param name        the name of the emergency task
-     * @param desc        the description of the emergency task
-     * @param dateStr     the date string of the emergency task
-     * @param locationStr the location string of the emergency task
-     * @return the created EmergencyTask object
-     */
-    @Contract("_, _, _, _ -> new")
-    public static @NotNull Event createObject(@NotNull String name, String desc, String dateStr, @NotNull String locationStr) {
-        if (locationStr.isEmpty()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
-            return new Event(name, desc, date);
-        } else if (desc.isEmpty()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
-            return new Event(name, date, locationStr);
-        } else if (desc.isEmpty() && locationStr.isEmpty()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
-            return new Event(name, date);
-        } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime date = LocalDateTime.parse(dateStr, formatter);
-            return new Event(name, date, locationStr, desc);
-        }
     }
 }

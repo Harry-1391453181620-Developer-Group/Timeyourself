@@ -1,13 +1,12 @@
-package view;
+package com.timeyourself.view;
 
-import models.EmergencyTask;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import com.timeyourself.config.GUIConfig;
+import com.timeyourself.model.EmergencyTask;
+import com.timeyourself.service.EmergencyTaskService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
  * The dialog where users can add EmergencyTask
@@ -17,7 +16,10 @@ public class AddEmergencyTaskEntryDialog {
         void onEmergencyTaskCreated(EmergencyTask emergencyTask);
     }
 
-    public AddEmergencyTaskEntryDialog(Window parentWindow, ImageIcon icon, Color mainBackgroundColor, Color JTableBackgroundColor, Color buttonBackgroundColor, view.AddEmergencyTaskEntryDialog.EmergencyTaskCallback callback) {
+    private final EmergencyTaskService emergencyTaskService;
+
+    public AddEmergencyTaskEntryDialog(Window parentWindow, ImageIcon icon, Color mainBackgroundColor, Color JTableBackgroundColor, Color buttonBackgroundColor, com.timeyourself.view.AddEmergencyTaskEntryDialog.EmergencyTaskCallback callback, EmergencyTaskService emergencyTaskService) {
+        this.emergencyTaskService = emergencyTaskService;
         // Initialize the dialog
         JDialog dialog = new JDialog(parentWindow, "Timeyourself - Add new emergency task");
         dialog.setSize(600, 800);
@@ -64,18 +66,18 @@ public class AddEmergencyTaskEntryDialog {
 
         confirmButton.addActionListener(e -> {
             try {
-                String name = nameField.getText().trim();
-                String desc = descField.getText().trim();
-                String startStr = startField.getText().trim();
-                String dueStr = dueField.getText().trim();
+                String name = nameField.getText(); // Trim in service.
+                String desc = descField.getText();
+                String startStr = startField.getText();
+                String dueStr = dueField.getText();
 
                 if (callback != null) {
-                    callback.onEmergencyTaskCreated(createObject(name, desc, startStr, dueStr));
+                    callback.onEmergencyTaskCreated(emergencyTaskService.create(name, desc, startStr, dueStr));
                 }
 
                 dialog.dispose();
 
-            } catch (Exception ex) {
+            } catch (DateTimeParseException ex) {
                 JOptionPane.showMessageDialog(dialog, "Error, please try enter more information.", "ERROR", JOptionPane.ERROR_MESSAGE);
             }
         });
@@ -85,39 +87,5 @@ public class AddEmergencyTaskEntryDialog {
         dialog.setLocationRelativeTo(null);
 
         dialog.setVisible(true);
-    }
-
-    /**
-     * Creates an EmergencyTask object based on the provided parameters, using all the provided constructors in EmergencyTask class.
-     *
-     * @param name     the name of the emergency task
-     * @param desc     the description of the emergency task
-     * @param startStr the start date string of the emergency task
-     * @param dueStr   the due date string of the emergency task
-     * @return the created EmergencyTask object
-     */
-    @Contract("_, _, _, _ -> new")
-    public static @NotNull EmergencyTask createObject(@NotNull String name, String desc, String startStr, String dueStr) {
-        if (name.isEmpty() && desc.isEmpty() && startStr.isEmpty() && dueStr.isEmpty()) {
-            return new EmergencyTask();
-        } else if (desc.isEmpty() && startStr.isEmpty() && dueStr.isEmpty()) {
-            return new EmergencyTask(name);
-        } else if (startStr.isEmpty() && dueStr.isEmpty()) {
-            return new EmergencyTask(name, desc);
-        } else if (desc.isEmpty()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime dueDate = LocalDateTime.parse(dueStr, formatter);
-            LocalDateTime startDate = LocalDateTime.parse(startStr, formatter);
-            return new EmergencyTask(name, startDate, dueDate);
-        } else if (dueStr.isEmpty()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime startDate = LocalDateTime.parse(startStr, formatter);
-            return new EmergencyTask(name, desc, startDate);
-        } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime startDate = LocalDateTime.parse(startStr, formatter);
-            LocalDateTime dueDate = LocalDateTime.parse(dueStr, formatter);
-            return new EmergencyTask(name, desc, startDate, dueDate);
-        }
     }
 }

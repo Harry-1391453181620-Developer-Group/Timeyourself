@@ -1,14 +1,11 @@
-package controller;
+package com.timeyourself.controller;
 import javax.swing.*;
 
-import models.EmergencyTask;
-import models.EmergencyTask.*;
-import models.Event;
-import models.Task;
-import models.Task.*;
-import models.Event.*;
+import com.timeyourself.model.EmergencyTask;
+import com.timeyourself.model.Event;
+import com.timeyourself.model.Task;
 import org.jetbrains.annotations.NotNull;
-import view.GUIConfig;
+import com.timeyourself.config.GUIConfig;
 
 import java.awt.*;
 
