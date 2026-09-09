@@ -241,6 +241,9 @@ body {
 
 .choose-bar#for-plans{
     display: none;
+    flex-direction: row;
+    justify-content: start;
+    overflow: scroll;
     grid-column: 2;
     position: absolute;
     background-color: #caf0f8;
@@ -249,10 +252,31 @@ body {
     height: 22.8%;
     left: calc(30% + 1.06vw);
     top: 43.15%;
+    scrollbar-width: thin;
+    scrollbar-color: #0077b6 #00b4d8;
+}
+.choose-bar#for-plans::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.choose-bar#for-plans::-webkit-scrollbar-track {
+    background: #ade8f4;
+    border-radius: 4px;
+}
+
+.choose-bar#for-plans::-webkit-scrollbar-thumb {
+    background: #0077b6;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
 }
 
 .choose-bar#for-events{
     display: none;
+    flex-direction: row;
+    justify-content: start;
+    overflow: scroll;
     grid-column: 2;
     position: absolute;
     background-color: #caf0f8;
@@ -261,6 +285,24 @@ body {
     height: 22.8%;
     left: calc(30% + 1.06vw);
     top: 50.7%;
+    scrollbar-width: thin;
+    scrollbar-color: #0077b6 #00b4d8;
+}
+.choose-bar#for-events::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.choose-bar#for-events::-webkit-scrollbar-track {
+    background: #ade8f4;
+    border-radius: 4px;
+}
+
+.choose-bar#for-events::-webkit-scrollbar-thumb {
+    background: #0077b6;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
 }
 
 .entry-column {
@@ -320,9 +362,9 @@ body {
     margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
-    font-size: 0.5vw;
+    font-size: 0.7vw;
     font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
-    font-weight: 200;
+    font-weight: 800;
     line-height: 0.5;
     letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
@@ -368,4 +410,74 @@ body {
     margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
+}
+
+/* Column container pinned to the left of the scrollable bar */
+.main-buttons-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;            /* Center buttons vertically in column */
+    align-items: center;                /* Center buttons horizontally in column */
+    gap: 6px;                           /* Spacing between buttons */
+    position: sticky;
+    left: 0;                            /* Pin to left side during horizontal scroll */
+    top: 0;
+    height: 100%;                       /* Fill full height of choose-bar */
+    width: 8%;                          /* Restored relative proportional width */
+    min-width: 28px;                    /* Minimum width to prevent collapsing */
+    flex-shrink: 0;                     /* Stops flexbox from squishing column */
+    background-color: inherit;          /* Inherits parent bar color so scrolling content passes underneath */
+    padding: 0 4px;
+    box-sizing: border-box;
+    z-index: 10;                        /* Keeps buttons layer above scrolling entries */
+}
+
+/* Base button styles */
+.add-button-on-choose-bars,
+.delete-all-button-on-choose-bars {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 20%;                        /* Proportional rectangle height */
+    max-height: 50px;
+    cursor: pointer;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+/* Add Button States */
+.add-button-on-choose-bars {
+    background-color: #0077b6;
+}
+.add-button-on-choose-bars:hover {
+    background-color: #0077b6;
+}
+.add-button-on-choose-bars:active {
+    background-color: #0096c7;
+}
+
+/* Delete All Button States */
+.delete-all-button-on-choose-bars {
+    background-color: #d00000;
+}
+.delete-all-button-on-choose-bars:hover {
+    background-color: #dc2f02;
+}
+.delete-all-button-on-choose-bars:active {
+    background-color: #e63946;
+}
+
+/* Typography for buttons in column */
+.main-buttons-column p {
+    margin: 0;
+    padding: 0;
+    color: #000000;                      /* Kept text black */
+    font-size: 0.7vw;
+    font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    font-weight: 800;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;                 /* Prevents text overflow */
+    pointer-events: none;                /* Keeps hover focus on parent button */
 }
