@@ -31,4 +31,3 @@ function setupHoverGroup(sectionId, trapezoidId, chooseBarId) {
 
 setupHoverGroup('categories', 'of-categories', 'for-categories');
 setupHoverGroup('plans', 'of-plans', 'for-plans');
-setupHoverGroup('events', 'of-events', 'for-events');
