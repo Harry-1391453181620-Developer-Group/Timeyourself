@@ -117,10 +117,34 @@ body {
     background-color: #edf6f6;
     margin: 0;
     position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
+    flex-shrink: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
     flex-direction: column;
     justify-content: start;
     align-items: start;
+    scrollbar-width: thin;
+    scrollbar-color: #0077b6 #00b4d8;
+}
+
+#main-display-area::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+#main-display-area::-webkit-scrollbar-track {
+    background: #ade8f4;
+    border-radius: 4px;
+}
+
+#main-display-area::-webkit-scrollbar-thumb {
+    background: #0077b6;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
 }
 
 .trapezoid#of-categories{
@@ -533,18 +557,17 @@ body {
     align-items: center;
     justify-content: center;
     color: #000000;
-    font-size: 3vw;
+    font-size: 1.5vw;
     font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
-    font-weight: 1000;
+    font-weight: 400;
     line-height: 1;
     text-align: center;
     white-space: nowrap;
     margin-left: 5%;
     margin-right: 5%;
-    margin-top: 2%;
-    margin-bottom: 2%;
+    margin-top: 4%;
+    margin-bottom: 1%;
     width: 90%;
-    height: 10%;
 }
 .main-display-bar-title p {
     margin: 0;
@@ -553,12 +576,98 @@ body {
     height: 100%;
 }
 
-.main-display-bar-event-entry,
-.main-display-bar-task-entry {
+.main-display-bar-display-mode-button-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    font-size: 1vw;
+    font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    font-weight: 300;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 0;
+    margin-bottom: 1%;
+    width: 90%;
+    height: 5%;
+}
+
+.main-display-bar-display-mode-button-area p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.main-display-bar-display-mode-button-area .view-as-list-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    font-size: 1.5vw;
+    font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 4%;
+    margin-bottom: 1%;
+    width: 20%;
+    height: 100%;
+    background-color: #90e0ef;
+}
+
+.main-display-bar-display-mode-button-area .view-as-line-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    font-size: 1.5vw;
+    font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 4%;
+    margin-bottom: 1%;
+    width: 20%;
+    height: 100%;
+    background-color: #90e0ef;
+}
+
+.main-display-bar-display-mode-button-area .view-as-list-button:hover {
+    background-color: #0077b6;
+}
+
+.main-display-bar-display-mode-button-area .view-as-line-button:hover {
+    background-color: #0077b6;
+}
+
+.main-display-bar-display-mode-button-area .view-as-list-button:active {
+    opacity: 0.8;
+}
+
+.main-display-bar-display-mode-button-area .view-as-line-button:active {
+    opacity: 0.7;
+}
+
+#main-display-area > .main-display-bar-event-entry,
+#main-display-area > .main-display-bar-task-entry {
     container-type: size; /*Catastrophe will happen if this line is deleted.*/
     display: flex;
     flex-direction: row;
     justify-content: start;
+    flex-shrink: 0;
     align-items: center;
     width: 94%;
     height: 10%;
