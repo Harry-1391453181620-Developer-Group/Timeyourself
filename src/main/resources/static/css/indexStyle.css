@@ -432,7 +432,6 @@ body {
     background-color: #e63946;
 }
 
-
 .main-buttons-column p {
     margin: 0;
     padding: 0;
@@ -889,7 +888,7 @@ body {
     row-gap: 17%;
     column-gap: 12%;
     margin-top: 1%;
-    margin-left: auto;  /*Ensure the buttons are right, important ofr appearance.*/
+    margin-left: auto; /*Ensure the buttons are right, important ofr appearance.*/
 }
 
 .main-display-bar-event-entry .button-area p,
