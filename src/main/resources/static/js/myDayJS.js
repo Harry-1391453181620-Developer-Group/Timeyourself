@@ -38,7 +38,7 @@ setupHoverGroup('plans', 'of-plans', 'for-plans');
     const LINE_VIEW = 'line';
 
     const DEFAULT_VIEW = LIST_VIEW;
-
+    const lineGrid = document.querySelector('.grid-for-view-in-line');
     const ENTRY_SELECTOR = '.main-display-bar-task-entry, .main-display-bar-event-entry';
 
     const mainDisplayArea = document.getElementById('main-display-area');
@@ -73,6 +73,7 @@ setupHoverGroup('plans', 'of-plans', 'for-plans');
             entry.style.display = 'flex';
         });
 
+        if (lineGrid) lineGrid.style.display = 'none';
         mainDisplayArea.style.overflowY = 'scroll';
         mainDisplayArea.style.overflowX = 'hidden';
         mainDisplayArea.style.scrollbarWidth = '';
@@ -87,7 +88,7 @@ setupHoverGroup('plans', 'of-plans', 'for-plans');
         getEntries().forEach(function (entry) {
             entry.style.display = 'none';
         });
-
+        if (lineGrid) lineGrid.style.display = 'grid';
         mainDisplayArea.style.overflowY = 'hidden';
         mainDisplayArea.style.overflowX = 'hidden';
         mainDisplayArea.style.scrollbarWidth = 'none';
@@ -132,3 +133,102 @@ setupHoverGroup('plans', 'of-plans', 'for-plans');
         init();
     }
 })();
+
+(function () {
+    'use strict';
+
+    var blocks = Array.prototype.slice.call(
+        document.querySelectorAll('.single-view-in-line-block')
+    );
+    var grid = document.querySelector('.grid-for-view-in-line');
+
+    function measureOne(container) {
+        if (!container.isConnected) return;
+        if (container.clientHeight === 0) return;
+
+        var overflowing = container.scrollHeight > container.clientHeight + 1;
+        container.classList.toggle('overflowing', overflowing);
+    }
+
+    function measureAll() {
+        blocks.forEach(measureOne);
+    }
+
+    blocks.forEach(function (container) {
+        var expandButton = container.querySelector('.expand-button');
+        if (!expandButton) return;
+
+        expandButton.addEventListener('mouseenter', function () {
+            container.classList.add('expanded');
+        });
+
+        container.addEventListener('mouseleave', function () {
+            container.classList.remove('expanded');
+        });
+
+        container.addEventListener('clamp:recheck', function () {
+            measureOne(container);
+        });
+    });
+
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(measureAll);
+    }
+
+    window.addEventListener('load', measureAll);
+
+    if (window.ResizeObserver && grid) {
+        var ro = new ResizeObserver(function () {
+            requestAnimationFrame(measureAll);
+        });
+        ro.observe(grid);
+    } else {
+        window.addEventListener('resize', function () {
+            requestAnimationFrame(measureAll);
+        });
+        requestAnimationFrame(function () {
+            requestAnimationFrame(measureAll);
+        });
+    }
+
+    if (window.MutationObserver) {
+        var mo = new MutationObserver(function () {
+            requestAnimationFrame(measureAll);
+        });
+        blocks.forEach(function (b) {
+            mo.observe(b, { childList: true });
+        });
+    }
+})();
+
+setupHoverGroup('categories', 'of-categories', 'for-categories');
+setupHoverGroup('plans', 'of-plans', 'for-plans');
+
+function initNavigation(customRoutes) {
+    const defaultRoutes = {
+        'day': 'myDay.html',
+        'week': 'myWeek.html',
+        'month': 'myMonth.html',
+        'year': 'myYear.html',
+        'events': 'events.html',
+        'reports': 'reports.html',
+        'logo': 'index.html'
+    };
+
+    const routes = customRoutes || defaultRoutes;
+
+    for (const [id, url] of Object.entries(routes)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.cursor = 'pointer';
+
+            element.addEventListener('click', function () {
+                window.location.href = url;
+            });
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    initNavigation();
+});
