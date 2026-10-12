@@ -113,38 +113,12 @@ body {
 
 #main-display-area {
     grid-column: 2;
-    grid-row: 1 / span 10;
+    grid-row: 1 / 11;
     background-color: #edf6f6;
-    margin: 0;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-shrink: 0;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    flex-direction: column;
-    justify-content: start;
-    align-items: start;
-    scrollbar-width: thin;
-    scrollbar-color: #0077b6 #00b4d8;
-}
-
-#main-display-area::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-#main-display-area::-webkit-scrollbar-track {
-    background: #ade8f4;
-    border-radius: 4px;
-}
-
-#main-display-area::-webkit-scrollbar-thumb {
-    background: #0077b6;
-    border-radius: 4px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
+    background-image: url("D:\Programing_materials\Java\java_Projects\Time_Yourself\src\main\resources\static\images\indexPage.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .trapezoid#of-categories{
