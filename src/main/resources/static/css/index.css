@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     width: 100vw;
-    height: 75vh;
+    height: 100vh;
     background-color: #FFFFFF;
     display: grid;
     grid-template-columns: 30% 70%;
@@ -115,8 +115,8 @@ body {
     grid-column: 2;
     grid-row: 1 / 11;
     background-color: #edf6f6;
-    background-image: url("D:\Programing_materials\Java\java_Projects\Time_Yourself\src\main\resources\static\images\indexPage.png");
-    background-size: cover;
+    background-image: url("../images/indexPage.png");
+    background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -127,9 +127,9 @@ body {
     z-index: 999;
     grid-column: 2;
     left: 30%;
-    top: 39.3%;
+    top: 52.8%;
     width: 1.05vw;
-    height: 15.19%;
+    height: 19.5%;
     background-color: transparent;
     transform: translateZ(0);
     will-change: transform;
@@ -156,9 +156,9 @@ body {
     z-index: 999;
     grid-column: 2;
     left: 30%;
-    top: 46.95%;
+    top: 63%;
     width: 1.05vw;
-    height: 15.19%;
+    height: 19.5%;
     background-color: transparent;
     transform: translateZ(0);
     will-change: transform;
@@ -189,9 +189,9 @@ body {
     background-color: #ade8f4;
     z-index: 999;
     width: 30%;
-    height: 22.8%;
+    height: 28.72%;
     left: calc(30% + 1.06vw);
-    top: 35.5%;
+    top: 48.2%;
     scrollbar-width: thin;
     scrollbar-color: #0077b6 #00b4d8;
 }
@@ -222,9 +222,9 @@ body {
     background-color: #caf0f8;
     z-index: 999;
     width: 30%;
-    height: 22.8%;
+    height: 28.72%;
     left: calc(30% + 1.06vw);
-    top: 43.15%;
+    top: 58.5%;
     scrollbar-width: thin;
     scrollbar-color: #0077b6 #00b4d8;
 }
