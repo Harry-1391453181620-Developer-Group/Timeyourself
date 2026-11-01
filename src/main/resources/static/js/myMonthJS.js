@@ -29,9 +29,6 @@ function setupHoverGroup(sectionId, trapezoidId, chooseBarId) {
     });
 }
 
-setupHoverGroup('categories', 'of-categories', 'for-categories');
-setupHoverGroup('plans', 'of-plans', 'for-plans');
-
 (function () {
     'use strict';
     const LIST_VIEW = 'list';

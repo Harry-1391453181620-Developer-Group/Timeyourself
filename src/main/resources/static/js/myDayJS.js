@@ -201,9 +201,6 @@ setupHoverGroup('plans', 'of-plans', 'for-plans');
     }
 })();
 
-setupHoverGroup('categories', 'of-categories', 'for-categories');
-setupHoverGroup('plans', 'of-plans', 'for-plans');
-
 function initNavigation(customRoutes) {
     const defaultRoutes = {
         'day': 'myDay.html',
