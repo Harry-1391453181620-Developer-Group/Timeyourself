@@ -33,3 +33,9 @@ bin/
 
 ### Maven ###
 target/
+
+### SQLite###
+data/
+
+### Packaging ###
+build/

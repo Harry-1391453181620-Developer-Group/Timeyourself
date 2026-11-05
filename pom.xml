@@ -32,15 +32,22 @@
             <version>4.0.8</version>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
             <version>26.0.2</version>
         </dependency>
         <dependency>
-            <groupId>com.formdev</groupId>
-            <artifactId>flatlaf</artifactId>
-            <version>3.7.1</version>
-            <scope>compile</scope>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>26.0.2</version>
         </dependency>
     </dependencies>
 
@@ -49,11 +56,36 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <requiresUnpack>
+                        <dependency>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>javafx-base</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>javafx-graphics</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>javafx-controls</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>javafx-media</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>javafx-web</artifactId>
+                        </dependency>
+                    </requiresUnpack>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <release>26</release>
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
         </plugins>

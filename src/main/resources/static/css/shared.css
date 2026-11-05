@@ -1,0 +1,339 @@
+:root {
+    --heat-0: #caf0f8;
+    --heat-1: #ade8f4;
+    --heat-2: #90e0ef;
+    --heat-3: #48cae4;
+    --heat-4: #00b4d8;
+    --heat-5: #0096c7;
+    --heat-6: #0077b6;
+
+    --state-ongoing: #90e0ef;
+    --state-ongoing-line: #5ce1e6;
+    --state-completed: #7ed957;
+    --state-failed: #ff3131;
+}
+
+#main-display-area > .main-display-bar-task-entry.is-ongoing {
+    background-color: var(--state-ongoing);
+}
+
+#main-display-area > .main-display-bar-task-entry.is-completed {
+    background-color: var(--state-completed);
+}
+
+#main-display-area > .main-display-bar-task-entry.is-failed {
+    background-color: var(--state-failed);
+    color: #ffffff;
+}
+
+#main-display-area > .main-display-bar-task-entry.is-failed .name-area,
+#main-display-area > .main-display-bar-task-entry.is-failed .date-area,
+#main-display-area > .main-display-bar-task-entry.is-failed .sort-area,
+#main-display-area > .main-display-bar-task-entry.is-failed .description-area {
+    color: #ffffff;
+}
+
+.main-display-bar-task-entry .checkbox.is-checked,
+.main-display-bar-event-entry .checkbox.is-checked {
+    background-color: #023e8a;
+    position: relative;
+}
+
+.main-display-bar-task-entry .checkbox.is-checked::after,
+.main-display-bar-event-entry .checkbox.is-checked::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #caf0f8;
+    font-size: 1.1vw;
+    line-height: 1;
+}
+
+.entry .name p {
+    font-size: 1.1vw;
+    padding: 0 4%;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.grid-for-view-in-line {
+    position: relative;
+}
+
+.single-view-in-line-block.is-dark {
+    color: #ffffff;
+}
+
+.single-view-in-line-block > .view-in-grid-entries {
+    position: absolute;
+    margin: 0;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.single-view-in-line-block > .expand-button {
+    z-index: 6;
+}
+
+.single-view-in-line-block.is-open {
+    overflow: visible;
+    z-index: 20;
+}
+
+.single-view-in-line-block.is-open > .expand-button {
+    display: none;
+}
+
+.view-in-grid-entries.is-ongoing {
+    background-color: var(--state-ongoing-line);
+}
+
+.view-in-grid-entries.is-completed {
+    background-color: var(--state-completed);
+}
+
+.view-in-grid-entries.is-failed {
+    background-color: var(--state-failed);
+}
+
+.single-view-in-line-block .view-in-grid-entries {
+    color: #000000;
+}
+
+.view-in-grid-entries.flush-left {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.view-in-grid-entries.flush-right {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.main-display-bar-display-mode-button-area .view-as-list-button,
+.main-display-bar-display-mode-button-area .view-as-line-button,
+.main-display-bar-display-mode-button-area .add-task-button,
+.main-display-bar-display-mode-button-area .add-event-button,
+.main-display-bar-display-mode-button-area .delete-all-done-button {
+    width: 15%;
+    height: 100%;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-top: 4%;
+    margin-bottom: 1%;
+    background-color: #90e0ef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    font-size: 1.05vw;
+    font-weight: 400;
+    cursor: pointer;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.main-display-bar-display-mode-button-area .view-as-list-button:hover,
+.main-display-bar-display-mode-button-area .view-as-line-button:hover,
+.main-display-bar-display-mode-button-area .add-task-button:hover,
+.main-display-bar-display-mode-button-area .add-event-button:hover {
+    background-color: #0077b6;
+}
+
+.main-display-bar-display-mode-button-area .delete-all-done-button {
+    background-color: #ffb3c1;
+}
+
+.main-display-bar-display-mode-button-area .delete-all-done-button:hover {
+    background-color: #d00000;
+    color: #ffffff;
+}
+
+.main-display-bar-display-mode-button-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 0;
+    margin-bottom: 1%;
+    height: 5%;
+    flex-shrink: 0;
+}
+
+.ts-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(2, 62, 138, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.ts-modal {
+    width: min(680px, 80vw);
+    max-height: 86vh;
+    overflow-y: auto;
+    background-color: #edf6f6;
+    border: 2px solid #0077b6;
+    padding: 2%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7vw;
+    box-sizing: border-box;
+    font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+}
+
+.ts-modal .ts-modal-note {
+    margin: 0;
+    font-size: 1vw;
+    color: #023e8a;
+}
+
+.ts-modal h2 {
+    margin: 0 0 0.4vw 0;
+    font-size: 1.4vw;
+    color: #023e8a;
+}
+
+.ts-modal label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2vw;
+    font-size: 0.95vw;
+    color: #023e8a;
+}
+
+.ts-modal input,
+.ts-modal textarea {
+    font-size: 0.95vw;
+    padding: 0.35vw;
+    border: 1px solid #0077b6;
+    background-color: #ffffff;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.ts-modal .ts-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.2%;
+    margin-top: 0.6vw;
+}
+
+.ts-modal .ts-modal-actions button {
+    font-size: 1vw;
+    padding: 0.45vw 1.6vw;
+    border: 1px solid #0077b6;
+    background-color: #90e0ef;
+    cursor: pointer;
+}
+
+.ts-modal .ts-modal-actions button:last-child {
+    background-color: #0077b6;
+    color: #ffffff;
+}
+
+.line-connectors {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.line-connector {
+    position: absolute;
+}
+
+.line-labels {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.line-label {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.6vw;
+    box-sizing: border-box;
+    color: #000000;
+    font-family: "Canva Sans SC", "PingFang SC", -apple-system, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    font-size: 0.85vw;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 2;
+}
+
+.line-label.is-on-top {
+    z-index: 25;
+}
+
+.line-connectors {
+    z-index: 1;
+}
+
+.choose-bar .entry-column {
+    justify-content: flex-start;
+}
+
+.choose-bar .entry {
+    height: auto;
+    min-height: 48px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    align-items: stretch;
+}
+
+.choose-bar .entry .name {
+    height: auto;
+    padding: 8px;
+    box-sizing: border-box;
+    line-height: 1.25;
+    overflow: visible;
+}
+
+.choose-bar .entry .name p {
+    margin: 0;
+    padding: 0;
+    font-size: 1vw;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.choose-bar .entry .buttons {
+    height: auto;
+    align-self: stretch;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.choose-bar .entry .buttons .rename-button-for-choose-bars,
+.choose-bar .entry .buttons .delete-button-for-choose-bars {
+    height: auto;
+    flex: 1 1 0;
+    min-height: 20px;
+    line-height: 1;
+}
+
+.reports-group-title {
+    height: 12%;
+    margin-bottom: 4%;
+}
+
+.reports-group-entry {
+    height: 12%;
+}
