@@ -1,0 +1,45 @@
+name: Build macOS DMG
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15          # Apple Silicon (arm64)
+            arch: arm64
+          - os: macos-15-intel    # Intel (x86_64)
+            arch: x86_64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "26"
+          cache: maven
+
+      - name: Build .app and .dmg
+        run: |
+          chmod +x scripts/package-macos.sh
+          ./scripts/package-macos.sh
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: TimeYourself-macOS-${{ matrix.arch }}
+          path: build/macos/*.dmg
+          if-no-files-found: error

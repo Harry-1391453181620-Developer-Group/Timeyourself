@@ -1,0 +1,14 @@
+# Keep shell scripts runnable on macOS regardless of Windows Git settings.
+* text=auto eol=lf
+
+*.sh    text eol=lf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+*.png   binary
+*.ico   binary
+*.icns  binary
+*.ttf   binary
+*.otf   binary
+*.jar   binary
+*.db    binary

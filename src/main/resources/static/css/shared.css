@@ -1,3 +1,36 @@
+/*
+ * macOS 15+ 的 JavaFX 目前无法正确加载系统中文字体，中文会回退到日文字形。
+ * 把 OFL 授权的 Noto Sans SC 随应用一起打包，保证 Windows/macOS 字形一致。
+ */
+@font-face {
+    font-family: "TimeYourself Sans";
+    src: url("../fonts/NotoSansSC-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "TimeYourself Sans";
+    src: url("../fonts/NotoSansSC-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+html,
+body,
+body * {
+    font-family: "TimeYourself Sans", "PingFang SC", "Hiragino Sans GB",
+        "Noto Sans CJK SC", "Microsoft YaHei", sans-serif !important;
+}
+
+body *::before,
+body *::after {
+    font-family: "TimeYourself Sans", "PingFang SC", "Hiragino Sans GB",
+        "Noto Sans CJK SC", "Microsoft YaHei", sans-serif !important;
+}
+
 :root {
     --heat-0: #caf0f8;
     --heat-1: #ade8f4;

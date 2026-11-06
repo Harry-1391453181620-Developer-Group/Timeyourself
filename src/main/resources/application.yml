@@ -1,12 +1,27 @@
 server:
+  # 只监听本机，避免 macOS 首次启动弹出“允许接受传入网络连接”的防火墙提示
+  address: 127.0.0.1
   port: 8081
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 spring:
   application:
     name: Time-Yourself
   datasource:
-    url: jdbc:sqlite:./data/timeyourself.db
+    # timeyourself.data-dir 由 TimeYourselfApplication 在启动前设置；
+    # macOS 默认是 ~/Library/Application Support/TimeYourself，Windows 仍是 ./data。
+    url: jdbc:sqlite:${timeyourself.data-dir:./data}/timeyourself.db
     driver-class-name: org.sqlite.JDBC
     hikari:
       maximum-pool-size: 1
       connection-init-sql: PRAGMA foreign_keys = ON
+
+logging:
+  file:
+    name: ${timeyourself.data-dir:./data}/timeyourself.log
+  level:
+    root: INFO
