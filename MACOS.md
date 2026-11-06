@@ -117,6 +117,11 @@ build/macos/TimeYourself-2.0.0-x86_64.dmg    # Intel
 - `macos-15`：Apple Silicon；
 - `macos-15-intel`：Intel。
 
+构建完成后它会强制检查两件事，任何一项失败都不会上传 artifact：
+
+1. `codesign --verify --strict` 通过；
+2. 主启动器带有 `com.apple.security.cs.disable-library-validation`（解决 `libjli.dylib` 的 Team ID 报错）。所以如果 Actions 红在 **Verify app signature and libjli entitlements**，看那一步的 `codesign -d --entitlements` 输出即可。
+
 它通过 `actions/setup-java` 安装 Temurin JDK 26。如果某天 Temurin 26 在 runner 上不可用，把 `distribution` 换成 `zulu` 即可（脚本本身不依赖具体发行版）。
 
 > 这是目前在 Windows 上“实际拿到 Mac 安装包”的最可行方式；`jpackage` 本身不能从 Windows 交叉编译出 macOS 包。

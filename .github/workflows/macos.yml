@@ -13,6 +13,7 @@ jobs:
   macos:
     name: macOS ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -32,10 +33,54 @@ jobs:
           java-version: "26"
           cache: maven
 
+      - name: Show toolchain
+        run: |
+          set -euo pipefail
+          uname -m
+          java -version
+          mvn -version
+
       - name: Build .app and .dmg
         run: |
+          set -euo pipefail
           chmod +x scripts/package-macos.sh
           ./scripts/package-macos.sh
+
+      - name: Verify app signature and libjli entitlements
+        run: |
+          set -euo pipefail
+          APP="build/macos/TimeYourself.app"
+          test -d "$APP"
+          test -f "$APP/Contents/runtime/Contents/Home/lib/libjli.dylib"
+
+          echo "== app signature =="
+          codesign --verify --strict --verbose=4 "$APP"
+
+          echo "== launcher signature =="
+          codesign --verify --strict --verbose=4 "$APP/Contents/MacOS/TimeYourself"
+
+          echo "== bundled JDK libjli signature =="
+          # Vendor runtime signatures are outside our control; log, but do not
+          # block the build on this one. The entitlement check below is the
+          # important guard for the libjli Team ID failure.
+          codesign --verify --strict --verbose=4 \
+            "$APP/Contents/runtime/Contents/Home/lib/libjli.dylib" \
+            || echo "WARN: libjli vendor signature verification failed; continuing"
+
+          echo "== launcher entitlements =="
+          ENTITLEMENTS="$(codesign -d --entitlements :- "$APP" 2>/dev/null || true)"
+          if ! echo "$ENTITLEMENTS" | grep -q "com.apple.security.cs.disable-library-validation"; then
+            ENTITLEMENTS="$(codesign -d --entitlements :- \
+              "$APP/Contents/MacOS/TimeYourself" 2>/dev/null || true)"
+          fi
+          echo "$ENTITLEMENTS"
+          echo "$ENTITLEMENTS" | grep -q "com.apple.security.cs.disable-library-validation"
+
+      - name: Verify DMG
+        run: |
+          set -euo pipefail
+          ls -lh build/macos/*.dmg
+          hdiutil verify build/macos/*.dmg
 
       - name: Upload DMG
         uses: actions/upload-artifact@v4
@@ -43,3 +88,4 @@ jobs:
           name: TimeYourself-macOS-${{ matrix.arch }}
           path: build/macos/*.dmg
           if-no-files-found: error
+          retention-days: 14
