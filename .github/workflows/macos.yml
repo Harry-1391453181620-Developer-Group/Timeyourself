@@ -3,11 +3,18 @@ name: Build macOS DMG
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - "v*"
 
 permissions:
   contents: read
+
+# If you push twice quickly, cancel the older build and keep the newest one.
+concurrency:
+  group: macos-dmg-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   macos:
@@ -82,10 +89,38 @@ jobs:
           ls -lh build/macos/*.dmg
           hdiutil verify build/macos/*.dmg
 
+      - name: Write build info
+        env:
+          BUILD_SHA: ${{ github.sha }}
+          BUILD_REF: ${{ github.ref_name }}
+          BUILD_RUN: ${{ github.run_number }}
+          BUILD_ATTEMPT: ${{ github.run_attempt }}
+          BUILD_ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          {
+            echo "app=TimeYourself"
+            echo "version=2.0.0"
+            echo "arch=$BUILD_ARCH"
+            echo "commit=$BUILD_SHA"
+            echo "ref=$BUILD_REF"
+            echo "run=$BUILD_RUN"
+            echo "attempt=$BUILD_ATTEMPT"
+            echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } | tee build/macos/build-info.txt
+          {
+            echo "### TimeYourself macOS $BUILD_ARCH"
+            echo '```'
+            cat build/macos/build-info.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:
-          name: TimeYourself-macOS-${{ matrix.arch }}
-          path: build/macos/*.dmg
+          name: TimeYourself-macOS-${{ matrix.arch }}-run${{ github.run_number }}-attempt${{ github.run_attempt }}
+          path: |
+            build/macos/*.dmg
+            build/macos/build-info.txt
           if-no-files-found: error
           retention-days: 14
