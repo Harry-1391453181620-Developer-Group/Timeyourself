@@ -249,7 +249,10 @@ xcrun stapler staple build/macos/TimeYourself-2.0.0-*.dmg
 | `invalid target release: 26` | 同上 |
 | `jpackage` 报 JavaFX 相关缺类 | 确认是在 Mac 上构建，Maven 会自动拉 `javafx-*-mac` / `-mac-aarch64`；不要手动指定 Windows classifier |
 | 启动后白屏 | 先用 Terminal 运行 `.../TimeYourself.app/Contents/MacOS/TimeYourself` 看日志；检查 `timeyourself.log` |
-| `Failed to create unpack directory` | `java.io.tmpdir` 不可写；打包脚本已把它指向 `$HOME/Library/Caches`，源码运行可加 `-Djava.io.tmpdir="$HOME/Library/Caches"` |
+| 双击后立刻闪退、Terminal 显示 `Killed: 9` | 签名带了 hardened runtime，而 JavaFX 原生库是运行时从 jar 解压的，被 macOS library validation 杀掉。打包脚本已去掉 `--options runtime`；不要给 ad-hoc 签名加这个参数 |
+| `dlopen(.../libjli.dylib) failed ... different Team IDs` | 主启动器缺少 `com.apple.security.cs.disable-library-validation`。这是 jpackage 的 [JDK-8358723](https://bugs.openjdk.org/browse/JDK-8358723)；`scripts/TimeYourself.entitlements` 已包含该键，重新打包即可 |
+| `Failed to create unpack directory` | `java.io.tmpdir` 不可写；打包脚本已固定为 `/tmp`，源码运行可加 `-Djava.io.tmpdir=/tmp` |
+| `Bad CPU type in executable` | DMG 架构和机器不匹配；Apple Silicon 用 arm64 包，Intel 用 x86_64 包 |
 | 端口被占用 | 打包版脚本传了 `-Dserver.port=0`，会自动选空闲端口；源码运行固定 8081，先关掉占用进程 |
 | 中文仍是日文字形 | 字体没进 jar 或 CSS 没加载；按 4.3 检查 |
 | 双击 app 闪退 | 用 Terminal 启动看真实错误；确认 `Contents/runtime`、`Contents/app` 完整 |

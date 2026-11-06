@@ -124,9 +124,9 @@ JPACKAGE_ARGS=(
     --java-options "-Dstderr.encoding=UTF-8"
     --java-options "--enable-native-access=ALL-UNNAMED"
     --java-options "-Dserver.port=0"
-    # Spring Boot unpacks the JavaFX native jars here. ~/Library/Caches always
-    # exists and is writable, unlike some sandboxed/relocated app temp dirs.
-    --java-options "-Djava.io.tmpdir=\$HOME/Library/Caches"
+    # Spring Boot unpacks the JavaFX native jars here. Use a stable absolute
+    # path: macOS always has a writable /tmp, and no $HOME expansion is needed.
+    --java-options "-Djava.io.tmpdir=/tmp"
 )
 if [[ -f "$ICON" ]]; then
     JPACKAGE_ARGS+=(--icon "$ICON")
@@ -147,19 +147,27 @@ if [[ -f "$PLIST" ]] && command -v /usr/libexec/PlistBuddy >/dev/null 2>&1; then
     /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsLocalNetworking bool true" "$PLIST" 2>/dev/null || true
 fi
 
-# Ad-hoc signing makes the bundle structurally complete on Apple Silicon.
-# Sign nested binaries first, then the bundle itself, which avoids the
-# "resource fork / code object is not signed at all" problems of --deep.
-# For public distribution, set CODESIGN_IDENTITY to a Developer ID Application
-# identity and notarize the resulting DMG (see MACOS.md).
+# macOS signs the launcher and the bundled JDK runtime separately. The main
+# launcher must carry com.apple.security.cs.disable-library-validation, or it
+# cannot load the JDK's libjli.dylib ("different Team IDs"). This is the
+# jpackage issue JDK-8358723. Do NOT re-sign the runtime dylibs: leave the
+# JDK vendor's signatures intact; only sign the launcher + app bundle.
 echo "==> Signing (ad-hoc by default)..."
 xattr -cr "$APP" 2>/dev/null || true
 SIGN_ID="${CODESIGN_IDENTITY:--}"
-find "$APP/Contents" -type f \( -name '*.dylib' -o -name '*.jnilib' \) -print0 \
-    | xargs -0 -I{} codesign --force --sign "$SIGN_ID" {} 2>/dev/null || true
-if codesign --force --options runtime --sign "$SIGN_ID" "$APP/Contents/MacOS/$APP_NAME"; then
-    codesign --force --options runtime --sign "$SIGN_ID" "$APP" || true
-    codesign --verify --deep --strict --verbose=2 "$APP" || true
+ENTITLEMENTS="$ROOT/scripts/TimeYourself.entitlements"
+SIGN_ARGS=(--force --sign "$SIGN_ID")
+if [[ -f "$ENTITLEMENTS" ]]; then
+    SIGN_ARGS+=(--entitlements "$ENTITLEMENTS")
+else
+    echo "WARN: $ENTITLEMENTS not found; libjli may fail with different Team IDs." >&2
+fi
+
+# Remove the old signature first so no stale hardened-runtime flags remain.
+codesign --remove-signature "$APP/Contents/MacOS/$APP_NAME" 2>/dev/null || true
+if codesign "${SIGN_ARGS[@]}" "$APP/Contents/MacOS/$APP_NAME"; then
+    codesign "${SIGN_ARGS[@]}" "$APP" || true
+    codesign --verify --strict --verbose=2 "$APP" || true
 else
     echo "WARN: codesign failed; the DMG will still be created, but Gatekeeper may need a right-click Open." >&2
 fi
