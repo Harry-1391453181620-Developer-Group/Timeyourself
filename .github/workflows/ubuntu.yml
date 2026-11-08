@@ -92,9 +92,9 @@ jobs:
           echo "== deb dependencies (must cover GTK on 22.04/24.04) =="
           DEPENDS="$(dpkg-deb -f "$DEB" Depends)"
           echo "$DEPENDS"
-          echo "$DEPENDS" | grep -q 'libgtk-3-0'
-          echo "$DEPENDS" | grep -q 'libgtk-3-0t64'
-          echo "$DEPENDS" | grep -q 'libasound2t64'
+          [[ "$DEPENDS" == *"libgtk-3-0"* ]]
+          [[ "$DEPENDS" == *"libgtk-3-0t64"* ]]
+          [[ "$DEPENDS" == *"libasound2t64"* ]]
 
           TARBALL="$(find build/ubuntu -maxdepth 1 -name '*.tar.gz' -print -quit)"
           test -n "$TARBALL"

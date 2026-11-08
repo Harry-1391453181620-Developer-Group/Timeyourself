@@ -213,22 +213,29 @@ if [[ "$SKIP_DEB" != "1" ]]; then
     fi
 
     # Fail the build early if the package is structurally broken.
+    #
+    # Do NOT use `dpkg-deb --contents ... | grep -q ...` here: grep -q exits
+    # on the first match and closes the pipe while dpkg-deb's internal tar is
+    # still writing. With `set -o pipefail`, that valid package is reported as
+    # a failure ("tar: stdout: write error", exit status 2). Read the full
+    # listing first, then match it without a pipe.
     dpkg-deb --info "$DEB" >/dev/null
-    if ! dpkg-deb --contents "$DEB" | grep -q "opt/$PACKAGE_NAME/bin/$APP_NAME"; then
+    DEB_CONTENTS="$(dpkg-deb --contents "$DEB")"
+    if [[ "$DEB_CONTENTS" != *"opt/$PACKAGE_NAME/bin/$APP_NAME"* ]]; then
         echo "ERROR: .deb does not contain opt/$PACKAGE_NAME/bin/$APP_NAME" >&2
         exit 1
     fi
     DEPENDS="$(dpkg-deb -f "$DEB" Depends)"
-    if ! echo "$DEPENDS" | grep -q "libgtk-3-0"; then
+    if [[ "$DEPENDS" != *"libgtk-3-0"* ]]; then
         echo "ERROR: .deb does not declare the GTK runtime dependency." >&2
         exit 1
     fi
-    if ! echo "$DEPENDS" | grep -q "libgtk-3-0t64"; then
-        echo "ERROR: .deb is missing the Ubuntu 24.04 GTK dependency alias." >&2
+    if [[ "$DEPENDS" != *"libgtk-3-0t64"* ]]; then
+        echo "ERROR: .deb is missing the Ubuntu 24.04/26.04 GTK dependency alias." >&2
         exit 1
     fi
-    if ! echo "$DEPENDS" | grep -q "libasound2t64"; then
-        echo "ERROR: .deb is missing the Ubuntu 24.04 ALSA dependency alias." >&2
+    if [[ "$DEPENDS" != *"libasound2t64"* ]]; then
+        echo "ERROR: .deb is missing the Ubuntu 24.04/26.04 ALSA dependency alias." >&2
         exit 1
     fi
 fi
