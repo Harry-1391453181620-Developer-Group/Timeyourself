@@ -1,5 +1,5 @@
 server:
-  # 只监听本机，避免 macOS 首次启动弹出“允许接受传入网络连接”的防火墙提示
+  # 只监听本机：macOS 不会弹防火墙授权，Ubuntu 也不会暴露到局域网
   address: 127.0.0.1
   port: 8081
   servlet:
@@ -12,8 +12,10 @@ spring:
   application:
     name: Time-Yourself
   datasource:
-    # timeyourself.data-dir 由 TimeYourselfApplication 在启动前设置；
-    # macOS 默认是 ~/Library/Application Support/TimeYourself，Windows 仍是 ./data。
+    # timeyourself.data-dir 由 TimeYourselfApplication 在启动前设置：
+    # macOS  ~/Library/Application Support/TimeYourself
+    # Ubuntu $XDG_DATA_HOME/timeyourself（默认 ~/.local/share/timeyourself）
+    # Windows ./data
     url: jdbc:sqlite:${timeyourself.data-dir:./data}/timeyourself.db
     driver-class-name: org.sqlite.JDBC
     hikari:
@@ -25,3 +27,9 @@ logging:
     name: ${timeyourself.data-dir:./data}/timeyourself.log
   level:
     root: INFO
+
+timeyourself:
+  security:
+    # 只接受 localhost / 127.0.0.1 / ::1 的 Host 头，防止 DNS rebinding。
+    # 如确实需要通过主机名访问，再改为 false。
+    host-guard: true

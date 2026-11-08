@@ -41,3 +41,6 @@ data/
 ### Packaging ###
 build/
 *.dmg
+*.deb
+*.rpm
+*.AppImage

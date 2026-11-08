@@ -1,0 +1,315 @@
+name: Build Ubuntu DEB
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ubuntu-deb-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Ubuntu 22.04 ${{ matrix.arch }}
+    # The official package is built on Ubuntu 22.04 so its glibc 2.35 baseline
+    # runs on both Ubuntu 22.04 and 24.04.
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch: x86_64
+          - os: ubuntu-22.04-arm
+            arch: aarch64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 26
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "26"
+          cache: maven
+
+      - name: Install packaging tools
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fakeroot dpkg-dev
+
+      - name: Confirm Ubuntu 22.04 builder
+        run: |
+          set -euo pipefail
+          . /etc/os-release
+          echo "distro=$PRETTY_NAME"
+          test "${ID:-}" = "ubuntu"
+          test "${VERSION_ID:-}" = "22.04"
+          uname -m
+          ldd --version | head -n 1
+          java -version
+          mvn -version
+          jpackage --version
+
+      - name: Build .deb and portable tarball
+        run: |
+          set -euo pipefail
+          chmod +x scripts/package-ubuntu.sh
+          ./scripts/package-ubuntu.sh
+
+      - name: Verify package contents
+        run: |
+          set -euo pipefail
+          APP="build/ubuntu/app/TimeYourself"
+          test -x "$APP/bin/TimeYourself"
+          test -f "$APP/lib/app/Time_Yourself-2.0.jar"
+          test -f "$APP/lib/runtime/bin/java"
+
+          echo "== bundled CJK fonts =="
+          jar tf "$APP/lib/app/Time_Yourself-2.0.jar" | grep 'static/fonts/NotoSansSC-Regular.ttf'
+
+          DEB="$(find build/ubuntu/deb -maxdepth 1 -name '*.deb' -print -quit)"
+          test -n "$DEB"
+          echo "== deb metadata =="
+          dpkg-deb --info "$DEB"
+          echo "== deb launcher + desktop entry =="
+          dpkg-deb --contents "$DEB" | grep -E 'opt/timeyourself/bin/TimeYourself'
+          # --linux-shortcut stores the .desktop in /opt/timeyourself/lib;
+          # the postinst runs xdg-desktop-menu to copy it into the system menu.
+          dpkg-deb --contents "$DEB" | grep -iE 'opt/timeyourself/lib/.*\.desktop'
+          dpkg-deb --contents "$DEB" | grep -E 'opt/timeyourself/lib/.*\.png'
+
+          echo "== deb dependencies (must cover GTK on 22.04/24.04) =="
+          DEPENDS="$(dpkg-deb -f "$DEB" Depends)"
+          echo "$DEPENDS"
+          echo "$DEPENDS" | grep -q 'libgtk-3-0'
+          echo "$DEPENDS" | grep -q 'libgtk-3-0t64'
+          echo "$DEPENDS" | grep -q 'libasound2t64'
+
+          TARBALL="$(find build/ubuntu -maxdepth 1 -name '*.tar.gz' -print -quit)"
+          test -n "$TARBALL"
+          tar -tzf "$TARBALL" | grep -E '^TimeYourself/bin/TimeYourself$'
+
+      - name: Smoke test on Ubuntu 22.04 (headless)
+        run: |
+          set -euo pipefail
+          APP="build/ubuntu/app/TimeYourself"
+          RUNTIME="$APP/lib/runtime/bin/java"
+          JAR="$APP/lib/app/Time_Yourself-2.0.jar"
+          DATA="$RUNNER_TEMP/ty data"
+          LOG="$RUNNER_TEMP/ty-smoke.log"
+
+          "$RUNTIME" \
+            -Dtimeyourself.headless=true \
+            -Dserver.port=18081 \
+            -Dtimeyourself.data-dir="$DATA" \
+            -Dfile.encoding=UTF-8 \
+            -jar "$JAR" >"$LOG" 2>&1 &
+          PID=$!
+
+          cleanup() {
+            kill "$PID" 2>/dev/null || true
+            wait "$PID" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          READY=0
+          for _ in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:18081/api/ping >/dev/null 2>&1; then
+              READY=1
+              break
+            fi
+            if ! kill -0 "$PID" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          if [[ "$READY" != "1" ]]; then
+            echo "---- app log ----"
+            cat "$LOG" || true
+            exit 1
+          fi
+
+          echo "== /api/ping =="
+          curl -fsS http://127.0.0.1:18081/api/ping
+          echo
+          echo "== /api/tasks =="
+          curl -fsS http://127.0.0.1:18081/api/tasks
+          echo
+          test -s "$DATA/timeyourself.db"
+          test -f "$DATA/timeyourself.log"
+
+          echo "== Host guard (expect 403) =="
+          STATUS="$(curl -s -o /dev/null -w '%{http_code}' \
+            -H 'Host: evil.example' http://127.0.0.1:18081/api/ping)"
+          test "$STATUS" = "403"
+
+          cleanup
+          trap - EXIT
+          echo "---- app log (tail) ----"
+          tail -n 30 "$LOG"
+
+      - name: Write build info
+        env:
+          BUILD_SHA: ${{ github.sha }}
+          BUILD_REF: ${{ github.ref_name }}
+          BUILD_RUN: ${{ github.run_number }}
+          BUILD_ATTEMPT: ${{ github.run_attempt }}
+          BUILD_ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          {
+            echo "app=TimeYourself"
+            echo "version=2.0.0"
+            echo "arch=$BUILD_ARCH"
+            echo "commit=$BUILD_SHA"
+            echo "ref=$BUILD_REF"
+            echo "run=$BUILD_RUN"
+            echo "attempt=$BUILD_ATTEMPT"
+            echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            . /etc/os-release
+            echo "built_on=$PRETTY_NAME"
+            echo "glibc=$(ldd --version | head -n 1)"
+          } | tee build/ubuntu/build-info.txt
+          {
+            echo "### TimeYourself Ubuntu $BUILD_ARCH"
+            echo '```'
+            cat build/ubuntu/build-info.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload DEB and portable tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: TimeYourself-Ubuntu-${{ matrix.arch }}-run${{ github.run_number }}-attempt${{ github.run_attempt }}
+          path: |
+            build/ubuntu/deb/*.deb
+            build/ubuntu/*.tar.gz
+            build/ubuntu/SHA256SUMS
+            build/ubuntu/build-info.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  ubuntu-compat:
+    name: Ubuntu ${{ matrix.version }} compatibility
+    runs-on: ${{ matrix.os }}
+    needs: build
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            version: "24.04"
+          - os: ubuntu-26.04
+            version: "26.04"
+    steps:
+      - name: Download x86_64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          # Pattern instead of the exact attempt number so "Re-run failed jobs"
+          # can reuse the artifact from the successful build attempt.
+          pattern: TimeYourself-Ubuntu-x86_64-run${{ github.run_number }}-attempt*
+          path: artifact
+          merge-multiple: true
+
+      - name: Confirm Ubuntu ${{ matrix.version }}
+        run: |
+          set -euo pipefail
+          . /etc/os-release
+          echo "distro=$PRETTY_NAME"
+          test "${ID:-}" = "ubuntu"
+          test "${VERSION_ID:-}" = "${{ matrix.version }}"
+          ldd --version | head -n 1
+          find artifact -maxdepth 2 -type f -printf '%P\n' | sort
+
+      - name: Verify .deb dependency resolution on Ubuntu ${{ matrix.version }}
+        run: |
+          set -euo pipefail
+          DEB="$(find artifact -maxdepth 3 -name '*.deb' -print -quit)"
+          test -n "$DEB"
+          dpkg-deb --info "$DEB"
+
+          sudo apt-get update
+          # Exit code 0 proves that the 22.04-built package's dependency
+          # alternatives resolve on this Ubuntu release.
+          sudo apt-get install --simulate "$(readlink -f "$DEB")" | tee "$RUNNER_TEMP/apt-simulate.log"
+          echo "Ubuntu ${{ matrix.version }} dependency simulation succeeded."
+
+      - name: Extract portable app
+        run: |
+          set -euo pipefail
+          TARBALL="$(find artifact -maxdepth 3 -name '*-ubuntu.tar.gz' -print -quit)"
+          test -n "$TARBALL"
+          tar -xzf "$TARBALL" -C artifact
+          test -x artifact/TimeYourself/bin/TimeYourself
+
+      - name: Smoke test on Ubuntu ${{ matrix.version }} (headless)
+        run: |
+          set -euo pipefail
+          APP="artifact/TimeYourself"
+          RUNTIME="$APP/lib/runtime/bin/java"
+          JAR="$APP/lib/app/Time_Yourself-2.0.jar"
+          DATA="$RUNNER_TEMP/ty-${{ matrix.version }}-data"
+          LOG="$RUNNER_TEMP/ty-${{ matrix.version }}-smoke.log"
+
+          "$RUNTIME" \
+            -Dtimeyourself.headless=true \
+            -Dserver.port=18082 \
+            -Dtimeyourself.data-dir="$DATA" \
+            -Dfile.encoding=UTF-8 \
+            -jar "$JAR" >"$LOG" 2>&1 &
+          PID=$!
+
+          cleanup() {
+            kill "$PID" 2>/dev/null || true
+            wait "$PID" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          READY=0
+          for _ in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:18082/api/ping >/dev/null 2>&1; then
+              READY=1
+              break
+            fi
+            if ! kill -0 "$PID" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          if [[ "$READY" != "1" ]]; then
+            echo "---- app log ----"
+            cat "$LOG" || true
+            exit 1
+          fi
+
+          echo "== /api/ping on Ubuntu ${{ matrix.version }} =="
+          curl -fsS http://127.0.0.1:18082/api/ping
+          echo
+          echo "== /api/tasks =="
+          curl -fsS http://127.0.0.1:18082/api/tasks
+          echo
+          test -s "$DATA/timeyourself.db"
+
+          echo "== Host guard (expect 403) =="
+          STATUS="$(curl -s -o /dev/null -w '%{http_code}' \
+            -H 'Host: evil.example' http://127.0.0.1:18082/api/ping)"
+          test "$STATUS" = "403"
+
+          cleanup
+          trap - EXIT
+          echo "---- app log (tail) ----"
+          tail -n 30 "$LOG"
