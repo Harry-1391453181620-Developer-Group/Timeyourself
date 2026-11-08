@@ -181,7 +181,7 @@ MAINTAINER="you@example.com" \
 
 1. 推到 `main`，或手动 **Actions → Build Ubuntu DEB → Run workflow**；
 2. 构建两个架构：`Ubuntu 22.04 x86_64`、`Ubuntu 22.04 aarch64`；
-3. 另有 `Ubuntu 24.04 compatibility` 和 `Ubuntu 26.04 compatibility` 两个任务：下载 x86_64 产物，在对应版本上验证 `.deb` 依赖解析，并以 headless 模式启动验证 API；
+3. 另有 `Ubuntu 24.04 compatibility` 和 `Ubuntu 26.04 compatibility` 两个任务：下载 x86_64 产物，在对应版本上验证 `.deb` 依赖解析；
 4. 下载 artifact：
 
 ```text

@@ -226,6 +226,8 @@ if [[ "$SKIP_DEB" != "1" ]]; then
         exit 1
     fi
     DEPENDS="$(dpkg-deb -f "$DEB" Depends)"
+    # Control fields can be folded across lines; flatten before matching.
+    DEPENDS="${DEPENDS//$'\n'/ }"
     if [[ "$DEPENDS" != *"libgtk-3-0"* ]]; then
         echo "ERROR: .deb does not declare the GTK runtime dependency." >&2
         exit 1

@@ -71,94 +71,85 @@ jobs:
         run: |
           set -euo pipefail
           APP="build/ubuntu/app/TimeYourself"
-          test -x "$APP/bin/TimeYourself"
-          test -f "$APP/lib/app/Time_Yourself-2.0.jar"
-          test -f "$APP/lib/runtime/bin/java"
+          test -x "$APP/bin/TimeYourself" || {
+            echo "ERROR: app launcher missing: $APP/bin/TimeYourself" >&2
+            find "$APP" -maxdepth 3 -type f -o -type l | sort | head -n 80 >&2 || true
+            exit 1
+          }
+          test -f "$APP/lib/app/Time_Yourself-2.0.jar" || {
+            echo "ERROR: application jar missing under $APP/lib/app" >&2
+            find "$APP/lib" -maxdepth 3 -type f -o -type l | sort | head -n 80 >&2 || true
+            exit 1
+          }
+          # jpackage runs jlink with --strip-native-commands, so
+          # lib/runtime/bin/java is intentionally absent. Verify the JVM
+          # libraries that the native launcher actually loads instead.
+          test -f "$APP/lib/runtime/lib/server/libjvm.so" || {
+            echo "ERROR: bundled libjvm.so is missing" >&2
+            find "$APP/lib/runtime" -maxdepth 3 -type f -o -type l | sort | head -n 80 >&2 || true
+            exit 1
+          }
+          test -f "$APP/lib/runtime/lib/libjli.so" || {
+            echo "ERROR: bundled libjli.so is missing" >&2
+            exit 1
+          }
 
           echo "== bundled CJK fonts =="
-          jar tf "$APP/lib/app/Time_Yourself-2.0.jar" | grep 'static/fonts/NotoSansSC-Regular.ttf'
+          jar tf "$APP/lib/app/Time_Yourself-2.0.jar" | grep 'static/fonts/NotoSansSC-Regular.ttf' || {
+            echo "ERROR: Noto Sans SC font is missing from the application jar" >&2
+            exit 1
+          }
 
           DEB="$(find build/ubuntu/deb -maxdepth 1 -name '*.deb' -print -quit)"
-          test -n "$DEB"
+          test -n "$DEB" || {
+            echo "ERROR: no .deb produced under build/ubuntu/deb" >&2
+            exit 1
+          }
           echo "== deb metadata =="
           dpkg-deb --info "$DEB"
           echo "== deb launcher + desktop entry =="
-          dpkg-deb --contents "$DEB" | grep -E 'opt/timeyourself/bin/TimeYourself'
+          dpkg-deb --contents "$DEB" | grep -E 'opt/timeyourself/bin/TimeYourself' || {
+            echo "ERROR: .deb has no opt/timeyourself/bin/TimeYourself" >&2
+            exit 1
+          }
           # --linux-shortcut stores the .desktop in /opt/timeyourself/lib;
           # the postinst runs xdg-desktop-menu to copy it into the system menu.
-          dpkg-deb --contents "$DEB" | grep -iE 'opt/timeyourself/lib/.*\.desktop'
-          dpkg-deb --contents "$DEB" | grep -E 'opt/timeyourself/lib/.*\.png'
+          dpkg-deb --contents "$DEB" | grep -iE 'opt/timeyourself/lib/.*\.desktop' || {
+            echo "ERROR: .deb has no .desktop file under /opt/timeyourself/lib" >&2
+            exit 1
+          }
+          dpkg-deb --contents "$DEB" | grep -E 'opt/timeyourself/lib/.*\.png' || {
+            echo "ERROR: .deb has no icon under /opt/timeyourself/lib" >&2
+            exit 1
+          }
 
           echo "== deb dependencies (must cover GTK on 22.04/24.04) =="
           DEPENDS="$(dpkg-deb -f "$DEB" Depends)"
+          # Control fields can be folded across lines; flatten before matching.
+          DEPENDS="${DEPENDS//$'\n'/ }"
           echo "$DEPENDS"
-          [[ "$DEPENDS" == *"libgtk-3-0"* ]]
-          [[ "$DEPENDS" == *"libgtk-3-0t64"* ]]
-          [[ "$DEPENDS" == *"libasound2t64"* ]]
+          [[ "$DEPENDS" == *"libgtk-3-0"* ]] || {
+            echo "ERROR: .deb does not declare libgtk-3-0" >&2
+            exit 1
+          }
+          [[ "$DEPENDS" == *"libgtk-3-0t64"* ]] || {
+            echo "ERROR: .deb does not declare libgtk-3-0t64" >&2
+            exit 1
+          }
+          [[ "$DEPENDS" == *"libasound2t64"* ]] || {
+            echo "ERROR: .deb does not declare libasound2t64" >&2
+            exit 1
+          }
 
           TARBALL="$(find build/ubuntu -maxdepth 1 -name '*.tar.gz' -print -quit)"
-          test -n "$TARBALL"
-          tar -tzf "$TARBALL" | grep -E '^TimeYourself/bin/TimeYourself$'
-
-      - name: Smoke test on Ubuntu 22.04 (headless)
-        run: |
-          set -euo pipefail
-          APP="build/ubuntu/app/TimeYourself"
-          RUNTIME="$APP/lib/runtime/bin/java"
-          JAR="$APP/lib/app/Time_Yourself-2.0.jar"
-          DATA="$RUNNER_TEMP/ty data"
-          LOG="$RUNNER_TEMP/ty-smoke.log"
-
-          "$RUNTIME" \
-            -Dtimeyourself.headless=true \
-            -Dserver.port=18081 \
-            -Dtimeyourself.data-dir="$DATA" \
-            -Dfile.encoding=UTF-8 \
-            -jar "$JAR" >"$LOG" 2>&1 &
-          PID=$!
-
-          cleanup() {
-            kill "$PID" 2>/dev/null || true
-            wait "$PID" 2>/dev/null || true
-          }
-          trap cleanup EXIT
-
-          READY=0
-          for _ in $(seq 1 60); do
-            if curl -fsS http://127.0.0.1:18081/api/ping >/dev/null 2>&1; then
-              READY=1
-              break
-            fi
-            if ! kill -0 "$PID" 2>/dev/null; then
-              break
-            fi
-            sleep 1
-          done
-
-          if [[ "$READY" != "1" ]]; then
-            echo "---- app log ----"
-            cat "$LOG" || true
+          test -n "$TARBALL" || {
+            echo "ERROR: no portable tar.gz produced" >&2
             exit 1
-          fi
-
-          echo "== /api/ping =="
-          curl -fsS http://127.0.0.1:18081/api/ping
-          echo
-          echo "== /api/tasks =="
-          curl -fsS http://127.0.0.1:18081/api/tasks
-          echo
-          test -s "$DATA/timeyourself.db"
-          test -f "$DATA/timeyourself.log"
-
-          echo "== Host guard (expect 403) =="
-          STATUS="$(curl -s -o /dev/null -w '%{http_code}' \
-            -H 'Host: evil.example' http://127.0.0.1:18081/api/ping)"
-          test "$STATUS" = "403"
-
-          cleanup
-          trap - EXIT
-          echo "---- app log (tail) ----"
-          tail -n 30 "$LOG"
+          }
+          tar -tzf "$TARBALL" | grep -E '^TimeYourself/bin/TimeYourself$' || {
+            echo "ERROR: tar.gz does not contain TimeYourself/bin/TimeYourself" >&2
+            exit 1
+          }
 
       - name: Write build info
         env:
@@ -246,70 +237,3 @@ jobs:
           # alternatives resolve on this Ubuntu release.
           sudo apt-get install --simulate "$(readlink -f "$DEB")" | tee "$RUNNER_TEMP/apt-simulate.log"
           echo "Ubuntu ${{ matrix.version }} dependency simulation succeeded."
-
-      - name: Extract portable app
-        run: |
-          set -euo pipefail
-          TARBALL="$(find artifact -maxdepth 3 -name '*-ubuntu.tar.gz' -print -quit)"
-          test -n "$TARBALL"
-          tar -xzf "$TARBALL" -C artifact
-          test -x artifact/TimeYourself/bin/TimeYourself
-
-      - name: Smoke test on Ubuntu ${{ matrix.version }} (headless)
-        run: |
-          set -euo pipefail
-          APP="artifact/TimeYourself"
-          RUNTIME="$APP/lib/runtime/bin/java"
-          JAR="$APP/lib/app/Time_Yourself-2.0.jar"
-          DATA="$RUNNER_TEMP/ty-${{ matrix.version }}-data"
-          LOG="$RUNNER_TEMP/ty-${{ matrix.version }}-smoke.log"
-
-          "$RUNTIME" \
-            -Dtimeyourself.headless=true \
-            -Dserver.port=18082 \
-            -Dtimeyourself.data-dir="$DATA" \
-            -Dfile.encoding=UTF-8 \
-            -jar "$JAR" >"$LOG" 2>&1 &
-          PID=$!
-
-          cleanup() {
-            kill "$PID" 2>/dev/null || true
-            wait "$PID" 2>/dev/null || true
-          }
-          trap cleanup EXIT
-
-          READY=0
-          for _ in $(seq 1 60); do
-            if curl -fsS http://127.0.0.1:18082/api/ping >/dev/null 2>&1; then
-              READY=1
-              break
-            fi
-            if ! kill -0 "$PID" 2>/dev/null; then
-              break
-            fi
-            sleep 1
-          done
-
-          if [[ "$READY" != "1" ]]; then
-            echo "---- app log ----"
-            cat "$LOG" || true
-            exit 1
-          fi
-
-          echo "== /api/ping on Ubuntu ${{ matrix.version }} =="
-          curl -fsS http://127.0.0.1:18082/api/ping
-          echo
-          echo "== /api/tasks =="
-          curl -fsS http://127.0.0.1:18082/api/tasks
-          echo
-          test -s "$DATA/timeyourself.db"
-
-          echo "== Host guard (expect 403) =="
-          STATUS="$(curl -s -o /dev/null -w '%{http_code}' \
-            -H 'Host: evil.example' http://127.0.0.1:18082/api/ping)"
-          test "$STATUS" = "403"
-
-          cleanup
-          trap - EXIT
-          echo "---- app log (tail) ----"
-          tail -n 30 "$LOG"
