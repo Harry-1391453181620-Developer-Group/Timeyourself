@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Set;
 
 /**
  * Applies the SQLite schema shipped as {@code db/schema.sql} while the application starts and upgrades
@@ -21,6 +22,13 @@ import java.sql.Statement;
  */
 @Component
 public class SchemaInitializer implements InitializingBean {
+
+    /**
+     * Tables that the startup migration is allowed to alter. SQLite does not accept bound parameters for
+     * identifiers in DDL or {@code PRAGMA} statements, so the only identifier interpolation in this class is
+     * restricted to this fixed allow-list instead of accepting arbitrary table names.
+     */
+    private static final Set<String> MIGRATION_TABLES = Set.of("task", "event");
 
     /**
      * Data source whose connection is used to execute the schema script and the migration statements.
@@ -63,13 +71,19 @@ public class SchemaInitializer implements InitializingBean {
 
     /**
      * Adds the {@code deleted} column, a non-null integer defaulting to zero, to the given table unless the
-     * column already exists.
+     * column already exists. The table name must belong to the fixed migration allow-list because it is
+     * interpolated into identifier position in DDL and {@code PRAGMA} statements.
      *
      * @param connection open database connection used to inspect and alter the table
-     * @param table      table that must carry the soft-delete flag
-     * @throws SQLException when the table metadata cannot be read or the column cannot be added
+     * @param table      table that must carry the soft-delete flag, one of the tables in
+     *                   {@link #MIGRATION_TABLES}
+     * @throws SQLException             when the table metadata cannot be read or the column cannot be added
+     * @throws IllegalArgumentException when the table is not part of the fixed migration allow-list
      */
     private void ensureDeletedColumn(Connection connection, String table) throws SQLException {
+        if (!MIGRATION_TABLES.contains(table)) {
+            throw new IllegalArgumentException("Table is not part of the startup migration: " + table);
+        }
         if (hasColumn(connection, table, "deleted")) {
             return;
         }
