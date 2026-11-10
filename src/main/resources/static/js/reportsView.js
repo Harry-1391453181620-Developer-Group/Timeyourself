@@ -1,4 +1,4 @@
-/* TimeYourself - Reports 页：4 个周期 × 7 个指标 */
+
 (function () {
     'use strict';
 
@@ -84,6 +84,22 @@
             alert('请求失败：' + error.message);
         }
     }
+
+    function resetReports() {
+        const note = document.createElement('p');
+        note.className = 'ts-modal-note';
+        note.textContent = 'Delete all Tasks and Events, including completed and past items, ' +
+            'and reset every Report to zero? This cannot be undone.';
+
+        RowActions.openModal('Reset Reports', [note], async function () {
+            await API.del('/api/reports');
+            await load();
+            if (window.ChooseBars) window.ChooseBars.reload();
+        }, 'Reset');
+    }
+
+    const resetButton = document.querySelector('.reset-reports-button');
+    if (resetButton) resetButton.addEventListener('click', resetReports);
 
     load();
 })();

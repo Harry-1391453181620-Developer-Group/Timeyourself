@@ -51,24 +51,33 @@ const Render = (() => {
         return area;
     }
 
+
+    function lineText(text) {
+        const p = el('p');
+        const span = el('span', 'entry-line');
+        span.textContent = text;
+        p.appendChild(span);
+        return p;
+    }
+
     function taskRow(task) {
         const row = el('div', 'main-display-bar-task-entry ' + (STATE_CLASS[task.status] || ''));
         row.dataset.id = task.id;
         row.dataset.status = task.status || '';
 
         const name = el('div', 'name-area');
-        name.appendChild(el('p', null, task.name || ''));
+        name.appendChild(lineText(task.name || ''));
 
         const sort = el('div', 'sort-area');
         const category = el('div', 'category-part');
-        category.appendChild(el('p', null, 'Category: ' + (task.categoryName || '-')));
+        category.appendChild(lineText('Category: ' + (task.categoryName || '-')));
         const plan = el('div', 'plan-part');
-        plan.appendChild(el('p', null, 'Plan: ' + (task.planName || '-')));
+        plan.appendChild(lineText('Plan: ' + (task.planName || '-')));
         sort.appendChild(category);
         sort.appendChild(plan);
 
         const description = el('div', 'description-area');
-        description.appendChild(el('p', null, 'Description: ' + (task.description || '')));
+        description.appendChild(lineText('Description: ' + (task.description || '')));
 
         row.appendChild(checkbox(task.completed, task.id));
         row.appendChild(name);
@@ -85,10 +94,10 @@ const Render = (() => {
         row.dataset.state = event.state || '';
 
         const name = el('div', 'name-area');
-        name.appendChild(el('p', null, event.name || ''));
+        name.appendChild(lineText(event.name || ''));
 
         const description = el('div', 'description-area');
-        description.appendChild(el('p', null, 'Description: ' + (event.description || '')));
+        description.appendChild(lineText('Description: ' + (event.description || '')));
 
         row.appendChild(checkbox(event.completed, event.id));
         row.appendChild(name);

@@ -1,4 +1,4 @@
-/* TimeYourself - Categories / Plans 页：choose bar 选中后加载任务（只有 list） */
+
 (function () {
     'use strict';
 
@@ -63,13 +63,13 @@
         await loadTasks();
     }
 
-    /* choose bar 里点了一条 */
+
     document.addEventListener('choose', function (e) {
         if (!e.detail || e.detail.kind !== kind) return;
         select(e.detail.item).catch(fail);
     });
 
-    /* 分类/计划改名：标题 + 每一行的 "Category: xxx" 都要更新 */
+
     document.addEventListener('choose-renamed', function (e) {
         if (!e.detail || e.detail.kind !== kind) return;
 
@@ -83,13 +83,13 @@
         }
     });
 
-    /* 分类/计划被删：删的是当前选中项就复位，否则刷新行里的分类/计划名 */
+
     document.addEventListener('choose-removed', function (e) {
         if (!e.detail || e.detail.kind !== kind) return;
 
         const removedCurrent = e.detail.item
             ? (selected && selected.id === e.detail.item.id)
-            : true;   /* item 为 null 表示 Del A 清空全部 */
+            : true;
 
         if (removedCurrent) {
             selected = null;
@@ -102,7 +102,7 @@
         loadTasks().catch(fail);
     });
 
-    /* URL 里带 ?categoryId=3 / ?planId=7 时自动选中 */
+
     async function init() {
         items = (await API.get(path)) || [];
 

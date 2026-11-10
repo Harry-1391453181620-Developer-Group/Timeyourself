@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS task (
   due_at       TEXT,
   completed    INTEGER NOT NULL DEFAULT 0 CHECK (completed IN (0,1)),
   completed_at TEXT,
+  deleted      INTEGER NOT NULL DEFAULT 0 CHECK (deleted IN (0,1)),
   category_id  INTEGER REFERENCES category(id) ON DELETE SET NULL,
   plan_id      INTEGER REFERENCES plan(id)     ON DELETE SET NULL,
   created_at   TEXT NOT NULL,
@@ -31,6 +32,7 @@ CREATE TABLE IF NOT EXISTS event (
   description TEXT NOT NULL DEFAULT '',
   start_at    TEXT,
   end_at      TEXT,
+  deleted     INTEGER NOT NULL DEFAULT 0 CHECK (deleted IN (0,1)),
   created_at  TEXT NOT NULL,
   updated_at  TEXT NOT NULL
 );

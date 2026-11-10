@@ -1,4 +1,4 @@
-/* TimeYourself - 线视图：热度块 + 全局 lane 对齐的 pill + 块间连接片 */
+
 (function () {
     'use strict';
 
@@ -25,7 +25,7 @@
     };
     const cfg = CONFIG[scope] || CONFIG.day;
 
-    /* day 全部；week/month 超过 1 天；year 超过 1 个日历月 */
+
     const MIN_MS = {
         day: 0,
         week: 24 * 60 * 60 * 1000,
@@ -48,7 +48,7 @@
     let connectors = null;
     let geom = null;
 
-    /* ---------- 时间 ---------- */
+
     function startOfScope() {
         const now = new Date();
         const day = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -91,7 +91,7 @@
         return [a, b];
     }
 
-    /* ---------- 过滤 ---------- */
+
     function exceedsOneMonth(task) {
         const start = new Date(task.startAt);
         const end = new Date(task.dueAt);
@@ -111,7 +111,7 @@
         return tasks.filter(passes);
     }
 
-    /* ---------- 全局 lane：同一个 task 在每个块里的行号一致 ---------- */
+
     function computeEntries(list) {
         const sorted = list.slice().sort(function (a, b) {
             const byStart = String(a.startAt || '').localeCompare(String(b.startAt || ''));
@@ -143,7 +143,7 @@
         return result;
     }
 
-    /* ---------- 构建 ---------- */
+
     function buildBlocks(counts) {
         Render.clear(grid);
         connectors = null;
@@ -163,7 +163,7 @@
             more.alt = 'show more';
             more.addEventListener('mouseenter', function () { openFrom(block); });
             block.appendChild(more);
-            /* 展开后鼠标一离开这个块就收起（不是等离开整个网格） */
+
             block.addEventListener('mouseleave', function (e) {
                 if (!block.classList.contains('is-open')) return;
 
@@ -179,7 +179,7 @@
 
     function buildPills() {
         entries.forEach(function (entry) {
-            /* 按行把槽位切成段：每行一段 */
+
             const segments = [];
             for (let slot = entry.range[0]; slot <= entry.range[1]; slot++) {
                 const row = Math.floor(slot / cfg.columns);
@@ -208,7 +208,7 @@
         });
     }
 
-    /* 每行段一个标签，放在该段中间；不放进 pill，避免被块的 overflow:hidden 裁掉 */
+
     function buildLabels() {
         const layer = document.createElement('div');
         layer.className = 'line-labels';
@@ -250,7 +250,7 @@
             const segStart = Number(label.dataset.segStart);
             const segEnd = Number(label.dataset.segEnd);
 
-            /* 该段起点块里这个任务的 pill 可见，标签才显示 */
+
             const pill = blocks[segStart]
                 .querySelector('.view-in-grid-entries[data-task-id="' + taskId + '"]');
 
@@ -259,7 +259,7 @@
                 return;
             }
 
-            /* 只要这个标签所在的行段里有块处于展开态，就把标签抬到展开块上面 */
+
             let onTop = false;
             for (let slot = segStart; slot <= segEnd; slot++) {
                 if (blocks[slot] && blocks[slot].classList.contains('is-open')) {
@@ -281,9 +281,9 @@
         });
     }
 
-    /* ---------- 排版：pill 按 lane 放到固定高度的行带上 ---------- */
-    /* ---------- 排版：pill 按 lane 放到固定高度的行带上 ---------- */
-    /* laneLimit：>= 它的行不渲染（折叠态传 geom.lanesFit，展开态传 Infinity） */
+
+
+
     function positionPills(block, laneLimit) {
         let hidden = false;
 
@@ -351,7 +351,7 @@
         positionLabels();
     }
 
-    /* ---------- 连接片：把块间空隙补齐 ---------- */
+
     function drawConnectors() {
         if (connectors) connectors.remove();
         connectors = document.createElement('div');
@@ -375,7 +375,7 @@
                 const rightPill = rightBlock
                     .querySelector('.view-in-grid-entries[data-task-id="' + entry.task.id + '"]');
 
-                /* 两侧都渲染了才连，展开后新露出的行也会自动连上 */
+
                 if (!leftPill || !rightPill) continue;
                 if (leftPill.style.display === 'none' || rightPill.style.display === 'none') continue;
 
@@ -396,7 +396,7 @@
         });
     }
 
-    /* ---------- 展开：同一批 task 覆盖的块一起向下盖 ---------- */
+
     function openBlock(block) {
         if (!geom) return;
 
@@ -438,7 +438,7 @@
             });
         }
 
-        /* 展开后重新画：新露出来的行也要有连接片 */
+
         positionLabels();
         window.requestAnimationFrame(drawConnectors);
     }
@@ -460,7 +460,7 @@
         });
     }
 
-    /* ---------- 对外 ---------- */
+
     function build() {
         const list = visible();
         entries = computeEntries(list);
@@ -487,7 +487,7 @@
 
     window.LineView = { setTasks: setTasks, renderBars: build };
 
-    /* 先画空块 */
+
     build();
 
     const lineButton = document.querySelector('.view-as-line-button');

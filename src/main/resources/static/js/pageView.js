@@ -43,13 +43,6 @@
         alert('请求失败：' + error.message);
     }
 
-    /* ---------- 弹窗基础 ---------- */
-    function nowLocal(minutesToAdd) {
-        const d = new Date(Date.now() + (minutesToAdd || 0) * 60000);
-        const pad = function (n) { return String(n).padStart(2, '0'); };
-        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
-            'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-    }
 
     function makeInput(type, value) {
         const node = document.createElement('input');
@@ -64,15 +57,39 @@
         return node;
     }
 
-    function toLocalInput(value) {
-        return value ? String(value).replace(' ', 'T').slice(0, 16) : '';
-    }
-
     function makeField(labelText, control) {
         const wrap = document.createElement('label');
         wrap.appendChild(document.createTextNode(labelText));
         wrap.appendChild(control);
         return wrap;
+    }
+
+    let activeModalBackdrop = null;
+
+    function showModalError(message) {
+        if (!activeModalBackdrop) {
+            alert(message);
+            return;
+        }
+        let box = activeModalBackdrop.querySelector('.ts-modal-error');
+        if (!box) {
+            box = document.createElement('p');
+            box.className = 'ts-modal-error';
+            const actions = activeModalBackdrop.querySelector('.ts-modal-actions');
+            if (actions && actions.parentNode) {
+                actions.parentNode.insertBefore(box, actions);
+            } else {
+                activeModalBackdrop.querySelector('.ts-modal').appendChild(box);
+            }
+        }
+        box.textContent = message;
+        box.scrollIntoView({ block: 'nearest' });
+    }
+
+    function clearModalError() {
+        if (!activeModalBackdrop) return;
+        const box = activeModalBackdrop.querySelector('.ts-modal-error');
+        if (box) box.textContent = '';
     }
 
     function openModal(title, fields, onSubmit, submitLabel) {
@@ -94,17 +111,27 @@
         const cancel = document.createElement('button');
         cancel.type = 'button';
         cancel.textContent = 'Cancel';
-        cancel.addEventListener('click', function () { backdrop.remove(); });
+        cancel.addEventListener('click', function () { activeModalBackdrop = null; backdrop.remove(); });
 
         const confirm = document.createElement('button');
         confirm.type = 'button';
         confirm.textContent = submitLabel || 'Create';
         confirm.addEventListener('click', function () {
+            clearModalError();
             Promise.resolve(onSubmit())
                 .then(function (keepOpen) {
-                    if (keepOpen !== true) backdrop.remove();
+                    if (keepOpen !== true) {
+                        if (activeModalBackdrop === backdrop) activeModalBackdrop = null;
+                        backdrop.remove();
+                    }
                 })
-                .catch(fail);
+                .catch(function (error) {
+                    if (activeModalBackdrop === backdrop) {
+                        showModalError('请求失败：' + error.message);
+                    } else {
+                        fail(error);
+                    }
+                });
         });
 
         actions.appendChild(cancel);
@@ -112,6 +139,7 @@
         box.appendChild(actions);
         backdrop.appendChild(box);
         document.body.appendChild(backdrop);
+        activeModalBackdrop = backdrop;
 
         const first = box.querySelector('input, textarea');
         if (first) first.focus();
@@ -119,7 +147,7 @@
         return backdrop;
     }
 
-    /* 名字不存在就新建，返回 id；名字为空返回 null */
+
     async function findOrCreate(path, rawName, extra) {
         const name = (rawName || '').trim();
         if (!name) return null;
@@ -134,30 +162,31 @@
         return created.id;
     }
 
-    /* ---------- Add Task ---------- */
+
     function openTaskDialog() {
         const name = makeInput('text', '');
         const description = makeTextarea('');
-        const start = makeInput('datetime-local', nowLocal(0));
-        const end = makeInput('datetime-local', nowLocal(60));
+        const start = DateTimeField.create();
+        const end = DateTimeField.create();
         const category = makeInput('text', '');
         const plan = makeInput('text', '');
 
         openModal('Add Task', [
             makeField('Task name', name),
             makeField('Description', description),
-            makeField('Start', start),
-            makeField('End', end),
+            makeField('Start', start.root),
+            makeField('End', end.root),
             makeField('Category (optional — a new one will be created if it does not exist)', category),
             makeField('Plan (optional — a new one will be created if it does not exist)', plan)
         ], async function () {
             const taskName = name.value.trim();
             if (!taskName) {
-                alert('Task name is required');
+                showModalError('Task name is required');
                 return true;
             }
-            if (start.value && end.value && end.value < start.value) {
-                alert('End cannot be before start');
+            const rangeError = DateTimeField.validateRange(start, end);
+            if (rangeError) {
+                showModalError(rangeError);
                 return true;
             }
 
@@ -167,8 +196,8 @@
             await API.post('/api/tasks', {
                 name: taskName,
                 description: description.value.trim(),
-                startAt: start.value || null,
-                dueAt: end.value || null,
+                startAt: start.getValue(),
+                dueAt: end.getValue(),
                 categoryId: categoryId,
                 planId: planId
             });
@@ -178,34 +207,35 @@
         });
     }
 
-    /* ---------- Add Event ---------- */
+
     function openEventDialog() {
         const name = makeInput('text', '');
         const description = makeTextarea('');
-        const start = makeInput('datetime-local', nowLocal(0));
-        const end = makeInput('datetime-local', nowLocal(60));
+        const start = DateTimeField.create();
+        const end = DateTimeField.create();
 
         openModal('Add Event', [
             makeField('Event name', name),
             makeField('Description', description),
-            makeField('Start', start),
-            makeField('End', end)
+            makeField('Start', start.root),
+            makeField('End', end.root)
         ], async function () {
             const eventName = name.value.trim();
             if (!eventName) {
-                alert('Event name is required');
+                showModalError('Event name is required');
                 return true;
             }
-            if (start.value && end.value && end.value < start.value) {
-                alert('End cannot be before start');
+            const rangeError = DateTimeField.validateRange(start, end);
+            if (rangeError) {
+                showModalError(rangeError);
                 return true;
             }
 
             await API.post('/api/events', {
                 name: eventName,
                 description: description.value.trim(),
-                startAt: start.value || null,
-                endAt: end.value || null
+                startAt: start.getValue(),
+                endAt: end.getValue()
             });
 
             await load();
@@ -222,7 +252,7 @@
         const name = makeInput('text', task.name);
         openModal('Rename Task', [makeField('Task name', name)], async function () {
             const value = name.value.trim();
-            if (!value) { alert('Task name is required'); return true; }
+            if (!value) { showModalError('Task name is required'); return true; }
             await applyTask(task, { name: value });
         }, 'Save');
     }
@@ -235,19 +265,20 @@
     }
 
     function redateTask(task) {
-        const start = makeInput('datetime-local', toLocalInput(task.startAt));
-        const end = makeInput('datetime-local', toLocalInput(task.dueAt));
+        const start = DateTimeField.create(task.startAt);
+        const end = DateTimeField.create(task.dueAt);
         openModal('Redate Task', [
-            makeField('Start', start),
-            makeField('End', end)
+            makeField('Start', start.root),
+            makeField('End', end.root)
         ], async function () {
-            if (start.value && end.value && end.value < start.value) {
-                alert('End cannot be before start');
+            const rangeError = DateTimeField.validateRange(start, end);
+            if (rangeError) {
+                showModalError(rangeError);
                 return true;
             }
             await applyTask(task, {
-                startAt: start.value || null,
-                dueAt: end.value || null
+                startAt: start.getValue(),
+                dueAt: end.getValue()
             });
         }, 'Save');
     }
@@ -271,7 +302,7 @@
         const name = makeInput('text', event.name);
         openModal('Rename Event', [makeField('Event name', name)], async function () {
             const value = name.value.trim();
-            if (!value) { alert('Event name is required'); return true; }
+            if (!value) { showModalError('Event name is required'); return true; }
             await applyEvent(event, { name: value });
         }, 'Save');
     }
@@ -284,19 +315,20 @@
     }
 
     function redateEvent(event) {
-        const start = makeInput('datetime-local', toLocalInput(event.startAt));
-        const end = makeInput('datetime-local', toLocalInput(event.endAt));
+        const start = DateTimeField.create(event.startAt);
+        const end = DateTimeField.create(event.endAt);
         openModal('Redate Event', [
-            makeField('Start', start),
-            makeField('End', end)
+            makeField('Start', start.root),
+            makeField('End', end.root)
         ], async function () {
-            if (start.value && end.value && end.value < start.value) {
-                alert('End cannot be before start');
+            const rangeError = DateTimeField.validateRange(start, end);
+            if (rangeError) {
+                showModalError(rangeError);
                 return true;
             }
             await applyEvent(event, {
-                startAt: start.value || null,
-                endAt: end.value || null
+                startAt: start.getValue(),
+                endAt: end.getValue()
             });
         }, 'Save');
     }
@@ -323,7 +355,7 @@
         }, 'Delete');
     }
 
-    /* ---------- 渲染 ---------- */
+
     function removeRows() {
         main.querySelectorAll('.main-display-bar-task-entry, .main-display-bar-event-entry')
             .forEach(function (row) { row.remove(); });
@@ -348,7 +380,7 @@
         events.forEach(function (event) { appendRow(Render.eventRow(event)); });
     }
 
-    /* ---------- 加载 ---------- */
+
     async function load() {
         try {
             const result = await Promise.all([
@@ -377,7 +409,7 @@
         }
     }
 
-    /* ---------- 交互 ---------- */
+
     function findTask(id) {
         return tasks.find(function (task) { return task.id === id; });
     }
@@ -464,7 +496,7 @@
     const deleteAllDoneButton = document.querySelector('.delete-all-done-button');
     if (deleteAllDoneButton) deleteAllDoneButton.addEventListener('click', deleteAllDone);
 
-    /* choose bar 改名/删除后，My Day 等页面的行里 Category/Plan 文本要重取 */
+
     document.addEventListener('choose-renamed', function () {
         load();
     });

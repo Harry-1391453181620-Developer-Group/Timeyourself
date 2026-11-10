@@ -1,4 +1,4 @@
-/* TimeYourself - choose bar：分类 / 计划两列，交替填充 */
+
 const ChooseBars = (() => {
     'use strict';
 
@@ -15,7 +15,7 @@ const ChooseBars = (() => {
         return { bar: bar, left: columns[0], right: columns[1] || null };
     }
 
-    /* 交替：0、2、4… 进左列；1、3、5… 进右列 */
+
     function render(kind) {
         const spot = parts(kind);
         if (!spot || !spot.left) return;
@@ -38,7 +38,7 @@ const ChooseBars = (() => {
             document.dispatchEvent(new CustomEvent('choose', { detail: { kind: kind, item: item } }));
             return;
         }
-        /* 视图页里点分类/计划：跳到对应页面并带上选中项 */
+
         window.location.href = PAGE[kind] + '?' + ID_PARAM[kind] + '=' + encodeURIComponent(item.id);
     }
 

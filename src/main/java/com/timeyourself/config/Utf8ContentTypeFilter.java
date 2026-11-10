@@ -13,13 +13,26 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 明确告诉 WebView：本应用的 HTML/JS/CSS/JSON 都是 UTF-8。
- * 这样即使某个平台没有从 &lt;meta charset&gt; 推断出编码，也不会出现中文乱码。
+ * Servlet filter that declares UTF-8 as the character encoding of every response and assigns explicit content
+ * types for the kinds of static assets served by the application. This keeps HTML, JavaScript, CSS and JSON
+ * responses correctly decoded inside the embedded WebView even when the platform does not infer the encoding
+ * from the document metadata, which would otherwise corrupt non-ASCII text.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class Utf8ContentTypeFilter extends OncePerRequestFilter {
 
+    /**
+     * Sets the response character encoding to UTF-8, refines the content type according to the extension of
+     * the requested resource and then continues the filter chain. Requests for other resources keep the
+     * content type chosen by the handler while still carrying the UTF-8 character encoding.
+     *
+     * @param request     current HTTP request whose path selects the content type
+     * @param response    current HTTP response whose encoding and content type are adjusted
+     * @param filterChain remaining filter chain
+     * @throws ServletException when the downstream chain throws a servlet exception
+     * @throws IOException      when the downstream chain fails with an I/O error
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
