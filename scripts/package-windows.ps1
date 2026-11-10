@@ -191,7 +191,7 @@ if ($Installer) {
     }
     $env:Path = "$wixBin;$env:Path"
 
-    Write-Host "Building per-user Windows installer..."
+    Write-Host "Building Windows installer (per-machine, directory selectable)..."
     $installerArgs = @(
         "--type", "exe",
         "--name", "TimeYourself",
@@ -209,7 +209,7 @@ if ($Installer) {
         "--java-options", "-Dstderr.encoding=UTF-8",
         "--java-options", "--enable-native-access=ALL-UNNAMED",
         "--java-options", "-Dserver.port=0",
-        "--win-per-user-install",
+        "--win-dir-chooser",
         "--win-menu",
         "--win-shortcut"
     )
